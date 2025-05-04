@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { SearchIcon } from '../icons';
 import PageTitle from '../components/Typography/PageTitle';
 import { Input, Label, Textarea, Button } from '@windmill/react-ui';
-import { ReactComponent as PlusIcon } from '../icons/plus.svg';
 
 function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
