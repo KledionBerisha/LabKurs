@@ -29,7 +29,7 @@ function Header() {
         >
           <MenuIcon className="w-6 h-6" aria-hidden="true" />
         </button>
-        <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-900 shadow">
+        <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-800">
           {/* <!-- Theme toggler --> */}
           <li className="flex items-center space-x-4">
             <button

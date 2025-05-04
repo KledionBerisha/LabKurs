@@ -29,6 +29,11 @@ const routes = [
     name: 'ShtoPacientin',
   },
   {
+    path: '/app/Pacienti',
+    icon: 'HomeIcon',
+    name: 'Pacienti',
+  },
+  {
     path: '/app/forms',
     icon: 'FormsIcon',
     name: 'Forms',

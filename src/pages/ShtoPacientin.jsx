@@ -105,6 +105,14 @@ function Dashboard() {
             placeholder="Sheno detajet e alergjive."
           />
         )}
+        <Label className="mt-4">
+          <span>Kartela e vaksinimit</span>
+          <Textarea
+            className="mt-1"
+            rows="3"
+            placeholder="Sheno detajet e vaksinave."
+          />
+        </Label>
 
         {/* Surgeries */}
         <Label className="mt-4">A ka pasur nderhyrje operative?</Label>
