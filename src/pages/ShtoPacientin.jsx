@@ -19,34 +19,10 @@ function Dashboard() {
     }));
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log('Searching for:', searchQuery);
-  };
-
   return (
     <>
       <PageTitle>Shto pacient</PageTitle>
 
-      {/* Search Bar */}
-      <div className="mb-8">
-        <form
-          onSubmit={handleSearch}
-          className="relative w-full max-w-xl mr-6 focus-within:text-purple-500"
-        >
-          <div className="absolute inset-y-0 flex items-center pl-2">
-            <SearchIcon className="w-4 h-4" aria-hidden="true" />
-          </div>
-          <input
-            className="w-full pl-8 pr-2 py-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-md dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:shadow-outline-purple form-input"
-            type="text"
-            placeholder="Search for projects, clients, etc..."
-            aria-label="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </form>
-      </div>
 
       {/* Main Content */}
       <div className="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
