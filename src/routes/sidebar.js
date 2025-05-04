@@ -19,6 +19,11 @@ const routes = [
     name: 'InfermierDashboard',
   },
   {
+    path: '/app/DoctorPage',
+    icon: 'HomeIcon',
+    name: 'DoctorPage',
+  },
+  {
     path: '/app/ShtoPacientin',
     icon: 'HomeIcon',
     name: 'ShtoPacientin',

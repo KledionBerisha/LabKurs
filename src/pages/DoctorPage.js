@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 
-import CTA from '../components/CTA'
 import PageTitle from '../components/Typography/PageTitle'
 import response from '../utils/demo/tableData'
 import {
@@ -38,7 +37,7 @@ function DoctoPage() {
     <>
       <PageTitle>Kerko Pacientin</PageTitle>
 
-      <CTA />
+    
       <div className="input-type-pacientat w-full flex justify-between items-center px-4 py-3 mb-4 bg-white dark:bg-gray-800 rounded-md shadow">
   <div className="flex items-center gap-4">
     <input
