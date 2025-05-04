@@ -10,6 +10,8 @@ const Modals = lazy(() => import('../pages/Modals'))
 const Tables = lazy(() => import('../pages/Tables'))
 const Page404 = lazy(() => import('../pages/404'))
 const Blank = lazy(() => import('../pages/Blank'))
+const InfermierDashboard = lazy(()=>import('../pages/InfermierDashboard'))
+const ShtoPacientin = lazy(()=>import('../pages/ShtoPacientin'))
 
 /**
  * ⚠ These are internal routes!
@@ -57,6 +59,14 @@ const routes = [
   {
     path: '/blank',
     component: Blank,
+  },
+  {
+    path: '/InfermierDashboard',
+    component: InfermierDashboard,
+  },
+  {
+    path: '/ShtoPacientin',
+    component: ShtoPacientin,
   },
 ]
 
