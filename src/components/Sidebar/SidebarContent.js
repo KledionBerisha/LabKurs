@@ -3,7 +3,7 @@ import routes from '../../routes/sidebar'
 import { NavLink, Route } from 'react-router-dom'
 import * as Icons from '../../icons'
 import SidebarSubmenu from './SidebarSubmenu'
-import { Button } from '@windmill/react-ui'
+import { Link } from 'react-router-dom';
 
 function Icon({ icon, ...props }) {
   const Icon = Icons[icon]
@@ -14,7 +14,7 @@ function SidebarContent() {
   return (
     <div className="py-4 text-gray-500 dark:text-gray-400">
       <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
-        Windmill
+        MediVault
       </a>
       <ul className="mt-6">
         {routes.map((route) =>
@@ -41,16 +41,18 @@ function SidebarContent() {
           )
         )}
       </ul>
-      <div className="px-6 my-6">
-        <Button>
-          Create account
-          <span className="ml-2" aria-hidden="true">
-            +
-          </span>
-        </Button>
+      <div class="flex flex-col h-full"> 
+        <div class="mt-auto mb-4 flex justify-center">
+          <Link to="/login"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center"
+          >
+          Log out
+          </Link>
+        </div>
       </div>
     </div>
   )
 }
 
 export default SidebarContent
+
