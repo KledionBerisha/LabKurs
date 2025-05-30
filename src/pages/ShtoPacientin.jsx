@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { SearchIcon } from '../icons';
 import PageTitle from '../components/Typography/PageTitle';
 import { Input, Label, Textarea, Button } from '@windmill/react-ui';
 
 function Dashboard() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [showTextBox, setShowTextBox] = useState({
     semundjeKronike: false,
     alergji: false,
@@ -28,7 +26,7 @@ function Dashboard() {
         {/* Personal Information */}
         <Label>
           <span>Emri dhe Mbiemri</span>
-          <Input className="mt-1" placeholder="Kledion Berisha" />
+          <Input className="mt-1" placeholder="Emri Mbiemri" />
         </Label>
 
         <Label className="mt-4">
@@ -42,9 +40,22 @@ function Dashboard() {
         </Label>
 
         <Label className="mt-4">
-          <span>Adresa</span>
-          <Input className="mt-1" placeholder="Rruga..." />
+          <span className="text-gray-700 dark:text-gray-300">Vendbanimi</span>
+            <select 
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500 py-2 px-3"
+            >
+              <option value="">Qyteti</option>
+              <option value="prishtine">Prishtinë</option>
+              <option value="prizren">Prizren</option>
+              <option value="peje">Pejë</option>
+              <option value="mitrovice">Mitrovicë</option>
+              <option value="gjakove">Gjakovë</option>
+              <option value="ferizaj">Ferizaj</option>
+              <option value="gjilan">Gjilan</option>
+              <option value="rahovec">Rahovec</option>
+            </select>
         </Label>
+
 
         {/* Gender Selection */}
         <div className="mt-4">
