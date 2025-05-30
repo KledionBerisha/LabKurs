@@ -1,12 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { SidebarContext } from '../context/SidebarContext'
 import {
-  MoonIcon,
-  SunIcon,
   BellIcon,
   MenuIcon,
 } from '../icons'
-import { Avatar, Badge, Input, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
+import { Badge, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
 
 function Header() {
   const { mode, toggleMode } = useContext(WindmillContext)
@@ -30,20 +28,6 @@ function Header() {
           <MenuIcon className="w-6 h-6" aria-hidden="true" />
         </button>
         <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-800">
-          {/* <!-- Theme toggler --> */}
-          <li className="flex items-center space-x-4">
-            <button
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none"
-              onClick={toggleMode}
-              aria-label="Toggle color mode"
-            >
-              {mode === 'dark' ? (
-                <SunIcon className="w-5 h-5" aria-hidden="true" />
-              ) : (
-                <MoonIcon className="w-5 h-5" aria-hidden="true" />
-              )}
-            </button>
-          </li>
           {/* <!-- Notifications menu --> */}
           <li className="relative">
             <button
