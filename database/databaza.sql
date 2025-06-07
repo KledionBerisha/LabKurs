@@ -12,6 +12,7 @@ create table Doktori (
     Username varchar(255),
     Password varchar(255),
     UserID int,
+    EmriMbiemri varchar(255),
     Foreign key(UserID) references Users(UserID)
 );
 
@@ -19,7 +20,8 @@ create table Infermieri (
 	InfermieriID int auto_increment Primary key,
     Username varchar(255),
     Password Varchar(255),
-    UserID int, 
+    UserID int,
+    EmriMbiemri varchar(255), 
     foreign key(UserID) references Users(UserID)
 );
 
