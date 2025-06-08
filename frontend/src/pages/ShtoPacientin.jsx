@@ -15,13 +15,13 @@ function Dashboard() {
     dataLindjes: '',
     vendbanimi: '',
     gjinia: '',
-    sigurimShendetsor: '',
-    alergji: '',
+    sigurimShendetsor: null,
+    alergji: null,
     alergjiDetaje: '',
     kartelaVaksinimit: '',
-    nderhyrje: '',
+    nderhyrje: null,
     nderhyrjeDetaje: '',
-    semundjeKronike: '',
+    semundjeKronike: null,
     semundjeKronikeDetaje: '',
     medikamente: '',
     analizaEkzaminime: '',
@@ -50,8 +50,24 @@ function Dashboard() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically handle form submission, e.g., send data to an API
-    console.log('Form submitted:', formData);
+    // Pergatitja te dhenat per dërgim
+    const pacientData = {
+      emriMbiemri: formData.emri,
+      numriPersonal: formData.numriPersonal,
+      dataLindjes: formData.dataLindjes,
+      vendbanimiID: formData.vendbanimiID,
+      gjinia: formData.gjinia,
+      sigurimShendetsor: formData.sigurimShendetsor,
+      alergji: formData.alergji,
+      alergjiDetaje: formData.alergjiDetaje,
+      kartelaVaksinimit: formData.kartelaVaksinimit,
+      nderhyrje: formData.nderhyrje,
+      nderhyrjeDetaje: formData.nderhyrjeDetaje,
+      semundjeKronike: formData.semundjeKronike,
+      semundjeKronikeDetaje: formData.semundjeKronikeDetaje,
+      medikamente: formData.medikamente,
+      analizaEkzaminime: formData.analizaEkzaminime,
+    };
     // Reset form after submission
     setFormData({
       emri: '',
@@ -136,11 +152,11 @@ function Dashboard() {
           <Label>A ka sigurim shendetsor?</Label>
           <div className="mt-2">
             <Label radio>
-              <Input type="radio" value="Po" name="sigurimShendetsor" checked={formData.sigurimShendetsor === "Po"} onChange={handleChange}/>
+              <Input type="radio" value={true} name="sigurimShendetsor" checked={formData.sigurimShendetsor === true} onChange={()=> setFormData(prev => ({...prev, sigurimShendetsor: true}))}/>
               <span className="ml-2">Po</span>
             </Label>
             <Label className="ml-6" radio>
-              <Input type="radio" value="Jo" name="sigurimShendetsor" checked={formData.sigurimShendetsor === "Jo"} onChange={handleChange} />
+              <Input type="radio" value={false} name="sigurimShendetsor" checked={formData.sigurimShendetsor === false} onChange={()=> setFormData(prev => ({...prev, sigurimShendetsor: false}))} />
               <span className="ml-2">Jo</span>
             </Label>
           </div>
@@ -152,20 +168,26 @@ function Dashboard() {
           <Label radio>
             <Input
               type="radio"
-              value="Po"
+              value={true}
               name="alergji"
-              checked={formData.alergji === "Po"}
-              onChange={(e) => handleRadioChange('alergji', e.target.value)}
+              checked={formData.alergji === true}
+              onChange={() => {
+                setFormData(prev => ({ ...prev, alergji: true }));
+                setShowTextBox(prev => ({ ...prev, alergji: true }));
+              }}
             />
             <span className="ml-2">Po</span>
           </Label>
           <Label className="ml-6" radio>
             <Input
               type="radio"
-              value="Jo"
+              value={false}
               name="alergji"
-              checked={formData.alergji === "Jo"}
-              onChange={(e) => handleRadioChange('alergji', e.target.value)}
+              checked={formData.alergji === false}
+              onChange={() => {
+                setFormData(prev => ({ ...prev, alergji: false }));
+                setShowTextBox(prev => ({ ...prev, alergji: false }));
+              }}
             />
             <span className="ml-2">Jo</span>
           </Label>
@@ -198,20 +220,26 @@ function Dashboard() {
           <Label radio>
             <Input
               type="radio"
-              value="Po"
+              value={true}
               name="nderhyrje"
-              checked={formData.nderhyrje === "Po"}
-              onChange={(e) => handleRadioChange('nderhyrje', e.target.value)}
+              checked={formData.nderhyrje === true}
+              onChange={()=>{
+                setFormData(prev => ({ ...prev, nderhyrje: true }));
+                setShowTextBox(prev => ({ ...prev, nderhyrje: true }));
+              }}
             />
             <span className="ml-2">Po</span>
           </Label>
           <Label className="ml-6" radio>
             <Input
               type="radio"
-              value="Jo"
+              value={false}
               name="nderhyrje"
-              checked={formData.nderhyrje === "Jo"}
-              onChange={(e) => handleRadioChange('nderhyrje', e.target.value)}
+              checked={formData.nderhyrje === false}
+              onChange={() => {
+                setFormData(prev => ({ ...prev, nderhyrje: false }));
+                setShowTextBox(prev => ({ ...prev, nderhyrje: false }));
+              }}
             />
             <span className="ml-2">Jo</span>
           </Label>
@@ -233,20 +261,26 @@ function Dashboard() {
           <Label radio>
             <Input
               type="radio"
-              value="Po"
+              value={true}
               name="semundjeKronike"
-              checked={formData.semundjeKronike === "Po"}
-              onChange={(e) => handleRadioChange('semundjeKronike', e.target.value)}
+              checked={formData.semundjeKronike === true}
+              onChange={()=>{
+                setFormData(prev => ({ ...prev, semundjeKronike: true }));
+                setShowTextBox(prev => ({ ...prev, semundjeKronike: true }));
+              }}
             />
             <span className="ml-2">Po</span>
           </Label>
           <Label className="ml-6" radio>
             <Input
               type="radio"
-              value="Jo"
+              value={false}
               name="semundjeKronike"
-              checked={formData.semundjeKronike === "Jo"}
-              onChange={(e) => handleRadioChange('semundjeKronike', e.target.value)}
+              checked={formData.semundjeKronike === false}
+              onChange={()=>{
+                setFormData(prev => ({ ...prev, semundjeKronike: false }));
+                setShowTextBox(prev => ({ ...prev, semundjeKronike: false }));
+              }}
             />
             <span className="ml-2">Jo</span>
           </Label>
