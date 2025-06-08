@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@servicepublic class PacientService {
+@Service
+public class PacientService {
     private final PacientRepo pacientRepo;
 
     public PacientService(PacientRepo pacientRepo){

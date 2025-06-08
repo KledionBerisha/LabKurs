@@ -48,46 +48,66 @@ function Dashboard() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Pergatitja te dhenat per dërgim
-    const pacientData = {
-      emriMbiemri: formData.emri,
-      numriPersonal: formData.numriPersonal,
-      dataLindjes: formData.dataLindjes,
-      vendbanimiID: formData.vendbanimiID,
-      gjinia: formData.gjinia,
-      sigurimShendetsor: formData.sigurimShendetsor,
-      alergji: formData.alergji,
-      alergjiDetaje: formData.alergjiDetaje,
-      kartelaVaksinimit: formData.kartelaVaksinimit,
-      nderhyrje: formData.nderhyrje,
-      nderhyrjeDetaje: formData.nderhyrjeDetaje,
-      semundjeKronike: formData.semundjeKronike,
-      semundjeKronikeDetaje: formData.semundjeKronikeDetaje,
-      medikamente: formData.medikamente,
-      analizaEkzaminime: formData.analizaEkzaminime,
-    };
-    // Reset form after submission
-    setFormData({
-      emri: '',
-      numriPersonal: '',
-      dataLindjes: '',
-      vendbanimiID: '',
-      gjinia: '',
-      sigurimShendetsor: '',
-      alergji: '',
-      alergjiDetaje: '',
-      kartelaVaksinimit: '',
-      nderhyrje: '',
-      nderhyrjeDetaje: '',
-      semundjeKronike: '',
-      semundjeKronikeDetaje: '',
-      medikamente: '',
-      analizaEkzaminime: '',
-      analizaEkzaminimeDetaje: '',
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const pacientData = {
+    emriMbiemri: formData.emri,
+    numriPersonal: formData.numriPersonal,
+    dataLindjes: formData.dataLindjes,
+    vendbanimiID: formData.vendbanimiID,
+    gjinia: formData.gjinia,
+    sigurimShendetsor: formData.sigurimShendetsor,
+    alergji: formData.alergji,
+    alergjiDetaje: formData.alergjiDetaje,
+    kartelaVaksinimit: formData.kartelaVaksinimit,
+    nderhyrje: formData.nderhyrje,
+    nderhyrjeDetaje: formData.nderhyrjeDetaje,
+    semundjeKronike: formData.semundjeKronike,
+    semundjeKronikeDetaje: formData.semundjeKronikeDetaje,
+    medikamente: formData.medikamente,
+    analizaEkzaminime: formData.analizaEkzaminime,
+  };
+
+  try {
+    const response = await fetch('http://localhost:8080/api/pacientet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(pacientData),
     });
+
+    if (response.ok) {
+      alert('Pacienti u shtua me sukses!');
+      setFormData({
+        emri: '',
+        numriPersonal: '',
+        dataLindjes: '',
+        vendbanimiID: '',
+        gjinia: '',
+        sigurimShendetsor: '',
+        alergji: '',
+        alergjiDetaje: '',
+        kartelaVaksinimit: '',
+        nderhyrje: '',
+        nderhyrjeDetaje: '',
+        semundjeKronike: '',
+        semundjeKronikeDetaje: '',
+        medikamente: '',
+        analizaEkzaminime: '',
+        analizaEkzaminimeDetaje: '',
+      });
+    } else {
+      const errorText = await response.text();
+  console.error('Backend error:', errorText);
+  alert('Gabim gjatë shtimit të pacientit!');
+  return;
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Gabim në lidhje me serverin!');
   }
+};
   return (
     <>
       <PageTitle>Shto pacient</PageTitle>
@@ -108,7 +128,7 @@ function Dashboard() {
 
         <Label className="mt-4">
           <span>Data e Lindjes</span>
-          <Input className="mt-1" placeholder="xx/xx/xxxx" name='dataLindjes' value={formData.dataLindjes} onChange={handleChange}/>
+          <Input className="mt-1" placeholder="xx/xx/xxxx" type="date" name='dataLindjes' value={formData.dataLindjes} onChange={handleChange}/>
         </Label>
 
         <Label className="mt-4">

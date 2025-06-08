@@ -7,7 +7,7 @@ import java.util.Date;
 @Table(name = "Pacienti")
 public class Pacient{
     @Id
-    @GeneratedValue(strategu = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PacientiID")
     private Long pacientiId;
 
@@ -75,8 +75,8 @@ public class Pacient{
     public Vendbanimi getVendbanimi() {
          return vendbanimi; 
     }
-    public void setVendbanimi(Vendbanimi vendbanimi) {
-         this.vendbanimi = vendbanimi; 
+    public void setVendbanimi(Vendbanimi id) {
+         this.vendbanimi = id; 
     }
 
 
