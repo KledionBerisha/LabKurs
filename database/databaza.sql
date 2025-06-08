@@ -105,7 +105,6 @@ SELECT
     v.PacientiID,
     p.EmriMbiemri AS PacientEmriMbiemri,
     v.DoktoriID,
-    -- Convert username to "Firstname Lastname"
     CONCAT(
         UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', 1), 1)),
         LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', 1), 2)),
