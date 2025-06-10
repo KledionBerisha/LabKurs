@@ -60,4 +60,29 @@ public class PacientController {
             return ResponseEntity.internalServerError().body("Gabim gjatë krijimit të pacientit: " + e.getMessage());
         }
     }
+
+    @GetMapping
+    public ResponseEntity<?> getAllPacients() {
+        try {
+            // Convert Pacient entities to PacientDTOs for safe serialization
+            java.util.List<Pacient> pacients = pacientService.getAllPacients();
+            java.util.List<PacientDTO> dtos = new java.util.ArrayList<>();
+            for (Pacient p : pacients) {
+                PacientDTO dto = new PacientDTO();
+                dto.setEmriMbiemri(p.getEmriMbiemri());
+                dto.setNumriPersonal(p.getNumriPersonal());
+                dto.setDitelindja(p.getDitelindja());
+                dto.setVendbanimiID(p.getVendbanimi() != null ? p.getVendbanimi().getVendbanimiId() : null);
+                dto.setGjinia(p.getGjinia());
+                dto.setSigurimShendetsor(p.getSigurimShendetsor());
+                dto.setAlergji(p.getAlergji());
+                dto.setNderhyrje(p.getNderhyrje());
+                dto.setSemundjeKronike(p.getSemundjeKronike());
+                dtos.add(dto);
+            }
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Gabim gjatë marrjes së pacientëve: " + e.getMessage());
+        }
+    }
 }
