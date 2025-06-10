@@ -30,7 +30,6 @@ function Dashboard() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    // For number fields, keep as string for controlled input, convert on submit
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -39,7 +38,6 @@ function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate required fields
     if (!formData.emriMbiemri || !formData.numriPersonal || !formData.ditelindja || !formData.vendbanimiID || !formData.gjinia || formData.sigurimShendetsor === null || formData.alergji === null || formData.nderhyrje === null || formData.semundjeKronike === null) {
       alert('Ju lutem plotësoni të gjitha fushat e detyrueshme!');
       return;
@@ -52,7 +50,6 @@ function Dashboard() {
       alert('Zgjidhni vendbanimin!');
       return;
     }
-    // Make sure numriPersonal is sent as a number and not empty or zero
     const pacientData = {
       emriMbiemri: formData.emriMbiemri,
       numriPersonal: Number(formData.numriPersonal),
@@ -74,6 +71,82 @@ function Dashboard() {
         body: JSON.stringify(pacientData),
       });
       if (response.ok) {
+        const patient = await response.json();
+        console.log('Patient creation response:', patient); // DEBUG LOG
+        const pacientiID = patient.pacientiID || patient.pacientiId || patient.id;
+        // Send allergy details if present
+        if (formData.alergji && formData.alergjiDetaje.trim()) {
+          const allergyPayload = {
+            pacientiID,
+            pershkrimi: formData.alergjiDetaje,
+          };
+          console.log('Sending allergy payload:', allergyPayload); // DEBUG LOG
+          await fetch('http://localhost:8080/api/alergjia', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allergyPayload),
+          });
+        }
+
+        // Send vaccination card details if present
+        if (formData.kartelaVaksinimit.trim()) {
+          await fetch('http://localhost:8080/api/kartelavaksinimit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacientiID,
+              pershkrimi: formData.kartelaVaksinimit,
+            }),
+          });
+        }
+
+        // Send surgery details if present
+        if (formData.nderhyrje && formData.nderhyrjeDetaje.trim()) {
+          await fetch('http://localhost:8080/api/nderhyrje', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacientiID,
+              pershkrimi: formData.nderhyrjeDetaje,
+            }),
+          });
+        }
+
+        // Send chronic illness details if present
+        if (formData.semundjeKronike && formData.semundjeKronikeDetaje.trim()) {
+          await fetch('http://localhost:8080/api/semundjekronike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacientiID,
+              pershkrimi: formData.semundjeKronikeDetaje,
+            }),
+          });
+        }
+
+        // Send medications if present
+        if (formData.medikamente.trim()) {
+          await fetch('http://localhost:8080/api/medikamente', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacientiID,
+              pershkrimi: formData.medikamente,
+            }),
+          });
+        }
+
+        // Send other analyses if present
+        if (formData.analizaEkzaminime.trim()) {
+          await fetch('http://localhost:8080/api/ankesaanaliza', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pacientiID,
+              pershkrimi: formData.analizaEkzaminime,
+            }),
+          });
+        }
         alert('Pacienti u shtua me sukses!');
         setFormData({
           emriMbiemri: '',
@@ -202,7 +275,7 @@ function Dashboard() {
               name="alergji"
               checked={formData.alergji === false}
               onChange={() => {
-                setFormData(prev => ({ ...prev, alergji: false }));
+                setFormData(prev => ({ ...prev, alergji: false, alergjiDetaje: '' })); // clear textarea
                 setShowTextBox(prev => ({ ...prev, alergji: false }));
               }}
             />
@@ -240,7 +313,7 @@ function Dashboard() {
               value={true}
               name="nderhyrje"
               checked={formData.nderhyrje === true}
-              onChange={()=>{
+              onChange={() => {
                 setFormData(prev => ({ ...prev, nderhyrje: true }));
                 setShowTextBox(prev => ({ ...prev, nderhyrje: true }));
               }}
@@ -254,7 +327,7 @@ function Dashboard() {
               name="nderhyrje"
               checked={formData.nderhyrje === false}
               onChange={() => {
-                setFormData(prev => ({ ...prev, nderhyrje: false }));
+                setFormData(prev => ({ ...prev, nderhyrje: false, nderhyrjeDetaje: '' })); // clear textarea
                 setShowTextBox(prev => ({ ...prev, nderhyrje: false }));
               }}
             />
@@ -281,7 +354,7 @@ function Dashboard() {
               value={true}
               name="semundjeKronike"
               checked={formData.semundjeKronike === true}
-              onChange={()=>{
+              onChange={() => {
                 setFormData(prev => ({ ...prev, semundjeKronike: true }));
                 setShowTextBox(prev => ({ ...prev, semundjeKronike: true }));
               }}
@@ -294,8 +367,8 @@ function Dashboard() {
               value={false}
               name="semundjeKronike"
               checked={formData.semundjeKronike === false}
-              onChange={()=>{
-                setFormData(prev => ({ ...prev, semundjeKronike: false }));
+              onChange={() => {
+                setFormData(prev => ({ ...prev, semundjeKronike: false, semundjeKronikeDetaje: '' })); // clear textarea
                 setShowTextBox(prev => ({ ...prev, semundjeKronike: false }));
               }}
             />

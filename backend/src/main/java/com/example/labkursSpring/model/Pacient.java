@@ -2,6 +2,7 @@ package com.example.labkursSpring.model;
 
 import jakarta.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "Pacienti")
@@ -30,6 +31,24 @@ public class Pacient {
 
     @Column(name = "SigurimShendetsor", nullable = false)
     private Boolean sigurimShendetsor;
+     
+     @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+     private List<Alergjia> alergjite;
+
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Nderhyrje> nderhyrjet;
+
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SemundjeKronike> semundjeKronikeList;
+
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Medikamente> medikamentet;
+
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<KartelaVaksinimit> kartelatVaksinimit;
+
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AnkesaAnaliza> ankesatAnalizat;
 
     @Column(name = "Alergji")
     private Boolean alergji;
@@ -94,6 +113,48 @@ public class Pacient {
     }
     public void setSigurimShendetsor(Boolean sigurimShendetsor) {
          this.sigurimShendetsor = sigurimShendetsor; 
+    }
+
+    public List<Alergjia> getAlergjite() {
+        return alergjite;
+    }
+    public void setAlergjite(List<Alergjia> alergjite) {
+        this.alergjite = alergjite;
+    }
+
+    public List<Nderhyrje> getNderhyrjet() {
+        return nderhyrjet;
+    }
+    public void setNderhyrjet(List<Nderhyrje> nderhyrjet) {
+        this.nderhyrjet = nderhyrjet;
+    }
+
+    public List<SemundjeKronike> getSemundjeKronikeList() {
+        return semundjeKronikeList;
+    }
+    public void setSemundjeKronikeList(List<SemundjeKronike> semundjeKronikeList) {
+        this.semundjeKronikeList = semundjeKronikeList;
+    }
+
+    public List<Medikamente> getMedikamentet() {
+        return medikamentet;
+    }
+    public void setMedikamentet(List<Medikamente> medikamentet) {
+        this.medikamentet = medikamentet;
+    }
+
+    public List<KartelaVaksinimit> getKartelatVaksinimit() {
+        return kartelatVaksinimit;
+    }
+    public void setKartelatVaksinimit(List<KartelaVaksinimit> kartelatVaksinimit) {
+        this.kartelatVaksinimit = kartelatVaksinimit;
+    }
+
+    public List<AnkesaAnaliza> getAnkesatAnalizat() {
+        return ankesatAnalizat;
+    }
+    public void setAnkesatAnalizat(List<AnkesaAnaliza> ankesatAnalizat) {
+        this.ankesatAnalizat = ankesatAnalizat;
     }
 
 
