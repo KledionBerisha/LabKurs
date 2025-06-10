@@ -19,4 +19,8 @@ public class PacientService {
     public List<Pacient> getAllPacients() {
         return pacientRepo.findAll();
     }
+
+    public void deletePacientById(Long id) {
+        pacientRepo.deleteById(id);
+    }
 }

@@ -38,6 +38,22 @@ function Dashboard() {
     setData(allPatients.slice(start, start + resultsPerPage))
   }
 
+  function handleDelete(pacientiID) {
+  if (!window.confirm('A jeni i sigurt që doni të fshini këtë pacient?')) return;
+  fetch(`http://localhost:8080/api/pacientet/${pacientiID}`, {
+    method: 'DELETE',
+  })
+    .then(res => {
+      if (res.ok) {
+        setAllPatients(prev => prev.filter(p => p.pacientiId !== pacientiID && p.id !== pacientiID && p.pacientiID !== pacientiID));
+        setData(prev => prev.filter(p => p.pacientiId !== pacientiID && p.id !== pacientiID && p.pacientiID !== pacientiID));
+      } else {
+        alert('Fshirja dështoi!');
+      }
+    })
+    .catch(() => alert('Gabim gjatë lidhjes me serverin!'));
+  }
+
   function handleSearch(e) {
     e.preventDefault()
     let filtered = allPatients
@@ -114,7 +130,7 @@ function Dashboard() {
                     <Button layout="link" size="icon" aria-label="Edit">
                       <EditIcon className="w-5 h-5" aria-hidden="true" />
                     </Button>
-                    <Button layout="link" size="icon" aria-label="Delete">
+                    <Button layout="link" size="icon" aria-label="Delete" onClick={() => handleDelete(user.pacientiId || user.pacientiID || user.id)}>
                       <TrashIcon className="w-5 h-5" aria-hidden="true" />
                     </Button>
                   </div>

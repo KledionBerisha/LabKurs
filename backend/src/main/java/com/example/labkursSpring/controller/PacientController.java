@@ -86,4 +86,14 @@ public class PacientController {
             return ResponseEntity.internalServerError().body("Gabim gjatë marrjes së pacientëve: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePacient(@PathVariable Long id) {
+        try {
+            pacientService.deletePacientById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Gabim gjatë fshirjes së pacientit: " + e.getMessage());
+        }
+    }
 }
