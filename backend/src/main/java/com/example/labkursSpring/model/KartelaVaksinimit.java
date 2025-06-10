@@ -12,6 +12,7 @@ public class KartelaVaksinimit {
 
     @ManyToOne
     @JoinColumn(name = "PacientiID", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Pacient pacient;
 
     @Column(name = "Pershkrimi", nullable = false)

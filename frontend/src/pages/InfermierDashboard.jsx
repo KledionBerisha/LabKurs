@@ -9,103 +9,129 @@ import {
   TableRow,
   TableFooter,
   TableContainer,
-  Badge,
-  Avatar,
   Button,
   Pagination,
 } from '@windmill/react-ui'
-import response from '../utils/demo/tableData'
 
 function Dashboard() {
-  // Search functionality
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Table with actions state
+  const [searchNumriPersonal, setSearchNumriPersonal] = useState('')
+  const [searchEmriMbiemri, setSearchEmriMbiemri] = useState('')
   const [page, setPage] = useState(1)
-  const [tableData, setTableData] = useState([])
+  const [data, setData] = useState([])
+  const [allPatients, setAllPatients] = useState([])
   const resultsPerPage = 10
-  const totalResults = response.length
+  const totalResults = allPatients.length
 
-  // Data slicing for pagination
   useEffect(() => {
-    setTableData(response.slice((page - 1) * resultsPerPage, page * resultsPerPage))
-  }, [page])
+    fetch('http://localhost:8080/api/pacientet')
+      .then(res => res.json())
+      .then(patients => {
+        setAllPatients(Array.isArray(patients) ? patients : [])
+        setData(Array.isArray(patients) ? patients.slice(0, resultsPerPage) : [])
+      })
+      .catch(err => console.error('Error fetching patients:', err))
+  }, [])
+
+  function onPageChange(p) {
+    setPage(p)
+    const start = (p - 1) * resultsPerPage
+    setData(allPatients.slice(start, start + resultsPerPage))
+  }
+
+  function handleSearch(e) {
+    e.preventDefault()
+    let filtered = allPatients
+    if (searchNumriPersonal.trim() !== '') {
+      filtered = filtered.filter(p => p.numriPersonal && p.numriPersonal.toString().includes(searchNumriPersonal.trim()))
+    }
+    if (searchEmriMbiemri.trim() !== '') {
+      filtered = filtered.filter(p => p.emriMbiemri && p.emriMbiemri.toLowerCase().includes(searchEmriMbiemri.trim().toLowerCase()))
+    }
+    setData(filtered.slice(0, resultsPerPage))
+    setPage(1)
+  }
 
   return (
     <>
       <PageTitle>Dashboard</PageTitle>
-
       {/* Search Bar */}
-      <div className="mb-8">
-        <form className="relative w-full max-w-xl mr-6 focus-within:text-purple-500">
-          <div className="absolute inset-y-0 flex items-center pl-2">
-            <SearchIcon className="w-4 h-4" aria-hidden="true" />
-          </div>
+      <form onSubmit={handleSearch} className="input-type-pacientat w-full flex justify-between items-center px-4 py-3 mb-4 bg-white dark:bg-gray-800 rounded-md shadow">
+        <div className="flex items-center gap-4">
           <input
-            className="w-full pl-8 pr-2 py-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-md dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:shadow-outline-purple form-input"
-            type="text"
-            placeholder="Kerko pacient"
-            aria-label="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            type="number"
+            placeholder="Numri Personal"
+            value={searchNumriPersonal}
+            onChange={e => setSearchNumriPersonal(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
-        </form>
-      </div>
-
-      {/* Table with Action Buttons */}
+          <input
+            type="text"
+            placeholder="Emri Mbiemri"
+            value={searchEmriMbiemri}
+            onChange={e => setSearchEmriMbiemri(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="px-5 py-2 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 transition-colors"
+        >
+          Kërko
+        </button>
+      </form>
       <TableContainer>
-  <Table>
-    <TableHeader>
-      <tr>
-        <TableCell>Pacienti</TableCell>
-        <TableCell>Numri Personal</TableCell>
-        <TableCell>Ditelindja</TableCell>
-        <TableCell>Adresa</TableCell>
-        <TableCell>Ndrysho</TableCell>
-      </tr>
-    </TableHeader>
-    <TableBody>
-      {tableData.map((user, i) => (
-        <TableRow key={i}>
-          <TableCell>
-            <div className="flex items-center text-sm">
-              <div>
-                <p className="font-semibold">{user.name}</p>
-              </div>
-            </div>
-          </TableCell>
-          <TableCell>
-            <span className="text-sm">{user.NumriPersonal}</span>
-          </TableCell>
-          <TableCell>
-            <span className="text-sm">{user.ditelindja}</span>
-          </TableCell>
-          <TableCell>
-            <span className="text-sm">{user.adresa}</span>
-          </TableCell>
-          <TableCell>
-            <div className="flex items-center space-x-4">
-              <Button layout="link" size="icon" aria-label="Edit">
-                <EditIcon className="w-5 h-5" aria-hidden="true" />
-              </Button>
-              <Button layout="link" size="icon" aria-label="Delete">
-                <TrashIcon className="w-5 h-5" aria-hidden="true" />
-              </Button>
-            </div>
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-  <TableFooter>
-    <Pagination
-      totalResults={totalResults}
-      resultsPerPage={resultsPerPage}
-      onChange={(p) => setPage(p)}
-      label="Table navigation"
-    />
-  </TableFooter>
-</TableContainer>
+        <Table>
+          <TableHeader>
+            <tr>
+              <TableCell>Pacienti</TableCell>
+              <TableCell>Numri Personal</TableCell>
+              <TableCell>Ditelindja</TableCell>
+              <TableCell>Adresa</TableCell>
+              <TableCell>Ndrysho</TableCell>
+            </tr>
+          </TableHeader>
+          <TableBody>
+            {data.map((user, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <div className="flex items-center text-sm">
+                    <div>
+                      <p className="font-semibold">{user.emriMbiemri}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">{user.numriPersonal}</span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">{user.ditelindja ? new Date(user.ditelindja).toLocaleDateString() : ''}</span>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">{user.vendbanimiEmri || user.vendbanimiID}</span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-4">
+                    <Button layout="link" size="icon" aria-label="Edit">
+                      <EditIcon className="w-5 h-5" aria-hidden="true" />
+                    </Button>
+                    <Button layout="link" size="icon" aria-label="Delete">
+                      <TrashIcon className="w-5 h-5" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <TableFooter>
+          <Pagination
+            totalResults={totalResults}
+            resultsPerPage={resultsPerPage}
+            label="Table navigation"
+            onChange={onPageChange}
+          />
+        </TableFooter>
+      </TableContainer>
     </>
   )
 }
