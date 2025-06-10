@@ -7,11 +7,11 @@ import com.example.labkursSpring.repository.PacientRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/alergjia")
-@CrossOrigin(origins = "*")
 public class AlergjiaController {
     @Autowired
     private AlergjiaRepo alergjiaRepo;
@@ -34,5 +34,10 @@ public class AlergjiaController {
         alergjia.setPacient(pacient);
         alergjia.setPershkrimi(pershkrimi);
         return alergjiaRepo.save(alergjia);
+    }
+
+    @GetMapping("/pacienti/{id}")
+    public List<Alergjia> getAlergjiaByPacientId(@PathVariable Long id) {
+        return alergjiaRepo.findByPacient_PacientiId(id);
     }
 }

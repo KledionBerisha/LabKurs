@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/pacientet")
-@CrossOrigin(origins = "*")
 public class PacientController {
 
     @Autowired
@@ -69,10 +68,12 @@ public class PacientController {
             java.util.List<PacientDTO> dtos = new java.util.ArrayList<>();
             for (Pacient p : pacients) {
                 PacientDTO dto = new PacientDTO();
+                dto.setPacientiId(p.getPacientiId());
                 dto.setEmriMbiemri(p.getEmriMbiemri());
                 dto.setNumriPersonal(p.getNumriPersonal());
                 dto.setDitelindja(p.getDitelindja());
                 dto.setVendbanimiID(p.getVendbanimi() != null ? p.getVendbanimi().getVendbanimiId() : null);
+                dto.setVendbanimiEmri(p.getVendbanimi() != null ? p.getVendbanimi().getEmri() : null);
                 dto.setGjinia(p.getGjinia());
                 dto.setSigurimShendetsor(p.getSigurimShendetsor());
                 dto.setAlergji(p.getAlergji());

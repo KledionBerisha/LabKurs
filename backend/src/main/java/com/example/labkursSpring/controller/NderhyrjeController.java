@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/nderhyrje")
-@CrossOrigin(origins = "*")
 public class NderhyrjeController {
     @Autowired
     private NderhyrjeRepo nderhyrjeRepo;
@@ -34,5 +33,10 @@ public class NderhyrjeController {
         nderhyrje.setPacient(pacient);
         nderhyrje.setPershkrimi(pershkrimi);
         return nderhyrjeRepo.save(nderhyrje);
+    }
+
+    @GetMapping("/pacienti/{id}")
+    public java.util.List<Nderhyrje> getNderhyrjeByPacientId(@PathVariable Long id) {
+        return nderhyrjeRepo.findByPacient_PacientiId(id);
     }
 }

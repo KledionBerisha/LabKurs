@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/semundjekronike")
-@CrossOrigin(origins = "*")
 public class SemundjeKronikeController {
     @Autowired
     private SemundjeKronikeRepo semundjeKronikeRepo;
@@ -34,5 +34,10 @@ public class SemundjeKronikeController {
         semundjeKronike.setPacient(pacient);
         semundjeKronike.setPershkrimi(pershkrimi);
         return semundjeKronikeRepo.save(semundjeKronike);
+
+    }
+    @GetMapping("/pacienti/{id}")
+    public List<SemundjeKronike> getSemundjeKronikeByPacientId(@PathVariable Long id) {
+    return semundjeKronikeRepo.findByPacient_PacientiId(id);
     }
 }

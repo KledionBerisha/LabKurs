@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 public class PacientDTO {
+    private Long pacientiId;
     @NotBlank(message = "Emri dhe mbiemri janë të detyrueshëm")
     private String emriMbiemri;
 
@@ -32,7 +33,13 @@ public class PacientDTO {
     @NotNull(message = "Semundja kronike është e detyrueshme")
     private Boolean semundjeKronike;
 
+    private String vendbanimiEmri;
+
     // Getters and Setters
+    public Long getPacientiId() { return pacientiId; }
+    public void setPacientiId(Long pacientiId) { this.pacientiId = pacientiId; }
+
+
     public String getEmriMbiemri() { return emriMbiemri; }
     public void setEmriMbiemri(String emriMbiemri) { this.emriMbiemri = emriMbiemri; }
 
@@ -59,4 +66,7 @@ public class PacientDTO {
 
     public Boolean getSemundjeKronike() { return semundjeKronike; }
     public void setSemundjeKronike(Boolean semundjeKronike) { this.semundjeKronike = semundjeKronike; }
+
+    public String getVendbanimiEmri() { return vendbanimiEmri; }
+    public void setVendbanimiEmri(String vendbanimiEmri) { this.vendbanimiEmri = vendbanimiEmri; }
 }

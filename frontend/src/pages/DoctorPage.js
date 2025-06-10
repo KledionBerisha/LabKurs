@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import PageTitle from '../components/Typography/PageTitle'
 import {
@@ -18,6 +19,7 @@ function DoctoPage() {
   const [allPatients, setAllPatients] = useState([])
   const [searchNumriPersonal, setSearchNumriPersonal] = useState('')
   const [searchEmriMbiemri, setSearchEmriMbiemri] = useState('')
+  const history = useHistory()
 
   // pagination setup
   const resultsPerPage = 10
@@ -96,7 +98,14 @@ function DoctoPage() {
           </TableHeader>
           <TableBody>
             {data.map((user, i) => (
-              <TableRow key={i}>
+              <TableRow
+                key={i}
+                onClick={() => history.push({
+                  pathname: '/app/Pacienti', // Correct path for route
+                  state: { patient: user }
+                })}
+                className="cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-700 transition-colors"
+              >
                 <TableCell>
                   <div className="flex items-center text-sm">
                     <div>

@@ -7,11 +7,11 @@ import com.example.labkursSpring.repository.PacientRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/kartelavaksinimit")
-@CrossOrigin(origins = "*")
 public class KartelaVaksinimitController {
     @Autowired
     private KartelaVaksinimitRepo kartelaRepo;
@@ -34,5 +34,10 @@ public class KartelaVaksinimitController {
         kartela.setPacient(pacient);
         kartela.setPershkrimi(pershkrimi);
         return kartelaRepo.save(kartela);
+    }
+
+    @GetMapping("/pacienti/{id}")
+    public List<KartelaVaksinimit> getKartelaByPacientId(@PathVariable Long id) {
+        return kartelaRepo.findByPacient_PacientiId(id);
     }
 }

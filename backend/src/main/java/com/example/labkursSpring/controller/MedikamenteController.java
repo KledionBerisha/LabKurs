@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/medikamente")
-@CrossOrigin(origins = "*")
 public class MedikamenteController {
     @Autowired
     private MedikamenteRepo medikamenteRepo;
@@ -34,5 +34,11 @@ public class MedikamenteController {
         medikamente.setPacient(pacient);
         medikamente.setPershkrimi(pershkrimi);
         return medikamenteRepo.save(medikamente);
+
+        
+    }
+    @GetMapping("/pacienti/{id}")
+    public List<Medikamente> getMedikamenteByPacientId(@PathVariable Long id) {
+    return medikamenteRepo.findByPacient_PacientiId(id);
     }
 }
