@@ -5,16 +5,16 @@ import java.util.Date;
 
 @Entity
 @Table(name = "Pacienti")
-public class Pacient{
+public class Pacient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PacientiID")
     private Long pacientiId;
 
-    @Column(name = "NumriPersonal", nullable = false, unique = true)
+    @Column(name = "NumriPersonal", unique = true)
     private Long numriPersonal;
-    
-    @Column(name = "EmriMbiemri",nullable = false)
+
+    @Column(name = "EmriMbiemri", nullable = false)
     private String emriMbiemri;
 
     @Column(name = "Ditelindja", nullable = false)
@@ -31,15 +31,16 @@ public class Pacient{
     @Column(name = "SigurimShendetsor", nullable = false)
     private Boolean sigurimShendetsor;
 
-    @Column(name = "Alergji", nullable = true)
+    @Column(name = "Alergji")
     private Boolean alergji;
 
-    @Column(name = "Nderhyrje", nullable = true)
+    @Column(name = "Nderhyrje")
     private Boolean nderhyrje;
 
-    @Column(name = "SemundjeKronike", nullable = true)
+    @Column(name = "SemundjeKronike")
     private Boolean semundjeKronike;
 
+     
 
     // Getters and Setters
     public Long getPacientiId() { 
