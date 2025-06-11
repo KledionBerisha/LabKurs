@@ -1,4 +1,4 @@
-package com.example.labkursSpring.security;
+package com.example.labkursSpring.service;
 
 import com.example.labkursSpring.model.Users;
 import com.example.labkursSpring.repository.UserRepo;
