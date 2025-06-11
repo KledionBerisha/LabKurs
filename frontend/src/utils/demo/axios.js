@@ -9,7 +9,7 @@ instance.interceptors.request.use(
     (config) => {
         const user = AuthService.getCurrentUser();
         if (user && user.accessToken) {
-            config.headers['Authorization'] = 'Bearer' + user.accessToken;
+            config.headers['Authorization'] = 'Bearer ' + user.accessToken;
         }
         return config;
     },
@@ -29,7 +29,7 @@ instance.interceptors.response.use(
             try {
                 await AuthService.refreshToken();
                 const user = AuthService.getCurrentUser();
-                originalRequest.headers['Authorization'] = 'Bearer' + user.accessToken;
+                originalRequest.headers['Authorization'] = 'Bearer ' + user.accessToken;
                 return instance(originalRequest);
             } catch (refreshError) {
                 AuthService.logout();

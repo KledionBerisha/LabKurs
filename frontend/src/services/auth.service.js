@@ -28,7 +28,7 @@ class AuthService {
 
         return axios
         
-        .post(API_URL + 'refresh', { refreeshToken: user.refreeshToken })
+        .post(API_URL + 'refresh', { refreshToken: user.refreshToken })
         .then(response => {
             if (response.data.accessToken) {
                 const updatedUser = {

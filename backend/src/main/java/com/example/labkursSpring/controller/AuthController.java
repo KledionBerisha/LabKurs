@@ -18,6 +18,12 @@ import com.example.labkursSpring.dto.AuthRequest;
 import com.example.labkursSpring.dto.AuthResponse;
 import com.example.labkursSpring.dto.RefreshRequest;
 import com.example.labkursSpring.service.JwtService;
+import com.example.labkursSpring.repository.DoktoriRepo;
+import com.example.labkursSpring.model.Doktori;
+import com.example.labkursSpring.model.Users;
+import com.example.labkursSpring.repository.UserRepo;
+import com.example.labkursSpring.repository.InfermieriRepo;
+import com.example.labkursSpring.model.Infermieri;
 
 
 @RestController
@@ -31,17 +37,50 @@ public class AuthController {
     private JwtService jwtService;
 
     @Autowired
+    private InfermieriRepo infermieriRepo;
+
+    @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private DoktoriRepo doktoriRepo;
+    @Autowired
+    private UserRepo userRepo;
+
     @PostMapping("/login")
-        public ResponseEntity<?> login(@RequestBody AuthRequest request) throws Exception {
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) throws Exception {
+        System.out.println("[DEBUG] Login attempt: email=" + request.getEmail() + ", password=" + request.getPassword());
         authenticate(request.getEmail(), request.getPassword());
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String accessToken = jwtService.generateAccessToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-        return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken));
+        // Fetch user entity
+        Users user = userRepo.findByEmail(request.getEmail()).orElse(null);
+        Doktori doktori = null;
+        Infermieri infermieri = null;
+        if (user != null) {
+            doktori = doktoriRepo.findAll().stream()
+                .filter(d -> d.getUser() != null && d.getUser().getUserId().equals(user.getUserId()))
+                .findFirst().orElse(null);
+            if (doktori == null) {
+                infermieri = infermieriRepo.findAll().stream()
+                    .filter(i -> i.getUser() != null && i.getUser().getUserId().equals(user.getUserId()))
+                    .findFirst().orElse(null);
+            }
+        }
+
+        if (doktori != null) {
+            System.out.println("[DEBUG] Authenticated as DOCTOR: id=" + doktori.getDoktoriId() + ", emriMbiemri=" + doktori.getEmriMbiemri());
+            return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken, "DOCTOR", doktori.getDoktoriId(), doktori.getEmriMbiemri()));
+        } else if (infermieri != null) {
+            System.out.println("[DEBUG] Authenticated as INFERMIER: id=" + infermieri.getInfermieriID() + ", emriMbiemri=" + infermieri.getEmriMbiemri());
+            return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken, "INFERMIER", infermieri.getInfermieriID(), infermieri.getEmriMbiemri()));
+        } else {
+            System.out.println("[DEBUG] Authenticated as USER");
+            return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken, "USER", null, null));
+        }
     } 
 
 
@@ -55,7 +94,8 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         String newAccessToken = jwtService.generateAccessToken(userDetails);
 
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, request.refreshToken()));
+        // Use null/defaults for role/id/emriMbiemri in refresh
+        return ResponseEntity.ok(new AuthResponse(newAccessToken, request.refreshToken(), null, null, null));
     }
 
     private void authenticate(String username, String password) throws Exception {

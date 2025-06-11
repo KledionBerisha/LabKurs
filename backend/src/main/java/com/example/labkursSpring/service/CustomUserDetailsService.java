@@ -16,8 +16,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("[DEBUG] Loading user by email: " + email);
         Users user = userRepo.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        System.out.println("[DEBUG] Found user: " + user.getEmail() + ", password: " + user.getPassword());
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getEmail())
             .password(user.getPassword())
@@ -25,3 +27,5 @@ public class CustomUserDetailsService implements UserDetailsService {
             .build();
     }
 }
+
+// No PasswordEncoder or BCrypt is used here, so authentication will use plain text passwords from the database.

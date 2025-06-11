@@ -38,6 +38,8 @@ function Dashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const user = JSON.parse(localStorage.getItem('user'));
+    const accessToken = user?.accessToken;
     if (!formData.emriMbiemri || !formData.numriPersonal || !formData.ditelindja || !formData.vendbanimiID || !formData.gjinia || formData.sigurimShendetsor === null || formData.alergji === null || formData.nderhyrje === null || formData.semundjeKronike === null) {
       alert('Ju lutem plotësoni të gjitha fushat e detyrueshme!');
       return;
@@ -67,6 +69,7 @@ function Dashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + accessToken,
         },
         body: JSON.stringify(pacientData),
       });
@@ -83,7 +86,10 @@ function Dashboard() {
           console.log('Sending allergy payload:', allergyPayload); // DEBUG LOG
           await fetch('http://localhost:8080/api/alergjia', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify(allergyPayload),
           });
         }
@@ -92,7 +98,10 @@ function Dashboard() {
         if (formData.kartelaVaksinimit.trim()) {
           await fetch('http://localhost:8080/api/kartelavaksinimit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify({
               pacientiID,
               pershkrimi: formData.kartelaVaksinimit,
@@ -104,7 +113,10 @@ function Dashboard() {
         if (formData.nderhyrje && formData.nderhyrjeDetaje.trim()) {
           await fetch('http://localhost:8080/api/nderhyrje', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify({
               pacientiID,
               pershkrimi: formData.nderhyrjeDetaje,
@@ -116,7 +128,10 @@ function Dashboard() {
         if (formData.semundjeKronike && formData.semundjeKronikeDetaje.trim()) {
           await fetch('http://localhost:8080/api/semundjekronike', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify({
               pacientiID,
               pershkrimi: formData.semundjeKronikeDetaje,
@@ -128,7 +143,10 @@ function Dashboard() {
         if (formData.medikamente.trim()) {
           await fetch('http://localhost:8080/api/medikamente', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify({
               pacientiID,
               pershkrimi: formData.medikamente,
@@ -140,7 +158,10 @@ function Dashboard() {
         if (formData.analizaEkzaminime.trim()) {
           await fetch('http://localhost:8080/api/ankesaanaliza', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken,
+              },
             body: JSON.stringify({
               pacientiID,
               pershkrimi: formData.analizaEkzaminime,

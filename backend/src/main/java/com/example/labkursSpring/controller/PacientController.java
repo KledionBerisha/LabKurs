@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/pacientet")
@@ -21,7 +22,10 @@ public class PacientController {
     private VendbanimiRepo vendbanimiRepo;
 
     @PostMapping
-    public ResponseEntity<?> createPacient(@RequestBody @Valid PacientDTO dto) {
+    public ResponseEntity<?> createPacient(@RequestBody @Valid PacientDTO dto, HttpServletRequest request) {
+        // Debug: Log the Authorization header
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("[DEBUG] Authorization header: " + authHeader);
         try {
             System.out.println("DTO numriPersonal: " + dto.getNumriPersonal()); // Debug log
             if (dto.getNumriPersonal() == null || dto.getNumriPersonal() <= 0) {
