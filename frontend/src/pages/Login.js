@@ -16,7 +16,8 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      await AuthService.login(email, password);
+      const response = await AuthService.login(email, password);
+      localStorage.setItem('authToken',response.token);
       history.push('/app/dashboard'); // or your dashboard route
     } catch (err) {
       setError('Invalid email or password');

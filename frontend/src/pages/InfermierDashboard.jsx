@@ -23,8 +23,22 @@ function Dashboard() {
   const totalResults = allPatients.length
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/pacientet')
-      .then(res => res.json())
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = user?.accessToken;
+    if(!token){
+      console.error('No token found, redirecting to login.');
+      return;
+    }
+    fetch('http://localhost:8080/api/pacientet', {
+        headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => {
+        if(!res.ok) throw new Error('Failed to fetch patients.');
+        return res.json();
+      })
       .then(patients => {
         setAllPatients(Array.isArray(patients) ? patients : [])
         setData(Array.isArray(patients) ? patients.slice(0, resultsPerPage) : [])

@@ -13,7 +13,7 @@ import {
   Pagination,
 } from '@windmill/react-ui'
 
-function DoctoPage() {
+function DoctorPage() {
   const [page, setPage] = useState(1)
   const [data, setData] = useState([])
   const [allPatients, setAllPatients] = useState([])
@@ -27,8 +27,22 @@ function DoctoPage() {
 
   // Fetch patients from backend
   useEffect(() => {
-    fetch('http://localhost:8080/api/pacientet')
-      .then(res => res.json())
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = user?.accessToken;
+    if (!token){
+      console.error('No token found, redirecting to login.');
+      return;
+    }
+    fetch('http://localhost:8080/api/pacientet',{
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => {
+        if(!res.ok) throw new Error('Failed to detch patients');
+        return res.json();
+      })
       .then(patients => {
         console.log('Fetched patients:', patients); // DEBUG LOG
         setAllPatients(Array.isArray(patients) ? patients : [])
@@ -139,4 +153,4 @@ function DoctoPage() {
   )
 }
 
-export default DoctoPage
+export default DoctorPage
