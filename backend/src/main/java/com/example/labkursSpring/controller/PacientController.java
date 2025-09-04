@@ -5,11 +5,13 @@ import com.example.labkursSpring.model.Pacient;
 import com.example.labkursSpring.model.Vendbanimi;
 import com.example.labkursSpring.service.PacientService;
 import com.example.labkursSpring.repository.VendbanimiRepo;
+import com.example.labkursSpring.repository.PacientRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/pacientet")
@@ -20,6 +22,9 @@ public class PacientController {
 
     @Autowired
     private VendbanimiRepo vendbanimiRepo;
+
+    @Autowired
+    private PacientRepo pacientRepo;
 
     @PostMapping
     public ResponseEntity<?> createPacient(@RequestBody @Valid PacientDTO dto, HttpServletRequest request) {
@@ -88,6 +93,58 @@ public class PacientController {
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Gabim gjatë marrjes së pacientëve: " + e.getMessage());
+        }
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePacient(@PathVariable Long id, @RequestBody @Valid PacientDTO dto, HttpServletRequest request) {
+        // Log Authorization header for debugging
+        String authHeader = request.getHeader("Authorization");
+        System.out.println("[DEBUG PUT] Authorization header: " + authHeader);
+
+        try {
+            Optional<Pacient> opt = pacientRepo.findById(id);
+            if (opt.isEmpty()) {
+                return ResponseEntity.status(404).body("Pacienti nuk u gjet me id: " + id);
+            }
+            Pacient existing = opt.get();
+
+            // validate required fields (same rules as create)
+            if (dto.getEmriMbiemri() == null || dto.getEmriMbiemri().isEmpty()) {
+                return ResponseEntity.badRequest().body("Emri dhe mbiemri janë të detyrueshëm!");
+            }
+            if (dto.getNumriPersonal() == null || dto.getNumriPersonal() <= 0) {
+                return ResponseEntity.badRequest().body("Numri personal është i detyrueshëm dhe duhet të jetë më i madh se zero!");
+            }
+            if (dto.getDitelindja() == null) {
+                return ResponseEntity.badRequest().body("Ditelindja është e detyrueshme!");
+            }
+
+            // apply updates
+            existing.setEmriMbiemri(dto.getEmriMbiemri());
+            existing.setNumriPersonal(dto.getNumriPersonal());
+            existing.setDitelindja(dto.getDitelindja());
+            existing.setGjinia(dto.getGjinia());
+            existing.setSigurimShendetsor(dto.getSigurimShendetsor());
+            existing.setAlergji(dto.getAlergji());
+            existing.setNderhyrje(dto.getNderhyrje());
+            existing.setSemundjeKronike(dto.getSemundjeKronike());
+
+            if (dto.getVendbanimiID() != null) {
+                Vendbanimi vendbanimi = vendbanimiRepo.findById(dto.getVendbanimiID())
+                        .orElseThrow(() -> new IllegalArgumentException("Vendbanimi nuk u gjet!"));
+                existing.setVendbanimi(vendbanimi);
+            }
+
+            // persist using repository
+            Pacient saved = pacientRepo.save(existing);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Gabim gjatë përditësimit të pacientit: " + e.getMessage());
         }
     }
 
