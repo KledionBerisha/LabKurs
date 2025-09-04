@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { SearchIcon, EditIcon, TrashIcon } from '../icons'
 import PageTitle from '../components/Typography/PageTitle'
+import { useHistory } from 'react-router-dom';
 import {
   Table,
   TableHeader,
@@ -21,6 +22,7 @@ function Dashboard() {
   const [allPatients, setAllPatients] = useState([])
   const resultsPerPage = 10
   const totalResults = allPatients.length
+  const history = useHistory();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -54,8 +56,14 @@ function Dashboard() {
 
   function handleDelete(pacientiID) {
   if (!window.confirm('A jeni i sigurt që doni të fshini këtë pacient?')) return;
+  const user = JSON.parse(localStorage.getItem('user'));
+  const token = user?.accessToken;
   fetch(`http://localhost:8080/api/pacientet/${pacientiID}`, {
     method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    }
   })
     .then(res => {
       if (res.ok) {
@@ -79,6 +87,13 @@ function Dashboard() {
     }
     setData(filtered.slice(0, resultsPerPage))
     setPage(1)
+  }
+
+  function handleEdit(pacient){
+    history.push({
+      pathname: '/app/Pacienti',
+      state: {patient: pacient}
+    });
   }
 
   return (
@@ -141,7 +156,7 @@ function Dashboard() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-4">
-                    <Button layout="link" size="icon" aria-label="Edit">
+                    <Button layout="link" size="icon" aria-label="Edit" onClick={() => handleEdit(user)}>
                       <EditIcon className="w-5 h-5" aria-hidden="true" />
                     </Button>
                     <Button layout="link" size="icon" aria-label="Delete" onClick={() => handleDelete(user.pacientiId || user.pacientiID || user.id)}>
