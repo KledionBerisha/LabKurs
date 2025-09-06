@@ -90,8 +90,9 @@ function Dashboard() {
   }
 
   function handleEdit(pacient){
+    console.log('Editing patient:', pacient); // Add this line
     history.push({
-      pathname: '/app/Pacienti',
+      pathname: '/app/EditPacientin',
       state: {patient: pacient}
     });
   }

@@ -26,6 +26,11 @@ const routes = [
     icon: 'HomeIcon',
     name: 'Pacienti',
   },
+  {
+    path: '/app/EditPacientin',
+    icon: 'HomeIcon',
+    name: 'EditPacientin',
+  },
 ]
 
 export default routes

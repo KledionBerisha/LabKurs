@@ -11,17 +11,19 @@ function Pacienti(props) {
   const patient = (location.state && location.state.patient) || null;
   console.log('Pacienti.jsx patient object:', patient); // DEBUG LOG
   const [details, setDetails] = useState({
-    alergji: null,
-    kartelaVaksinimit: null,
-    nderhyrje: null,
-    semundjeKronike: null,
-    medikamente: null,
-    analizaEkzaminime: null,
+    alergji: [],
+    kartelaVaksinimit: [],
+    nderhyrje: [],
+    semundjeKronike: [],
+    medikamente: [],
+    analizaEkzaminime: [],
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalField, setModalField] = useState('');
   const [modalValue, setModalValue] = useState('');
   const [editValue, setEditValue] = useState('');
+  const [modalChangeArray, setModalChangeArray] = useState(false);
+  const arrayFieldsSet = new Set(['Alergji', 'Kartela Vaksinimit', 'Ndërhyrje Operative', 'Sëmundje Kronike']);
 
   useEffect(() => {
     if (patient && (patient.pacientiId || patient.id || patient.pacientId || patient.numriPersonal)) {
@@ -60,15 +62,18 @@ function Pacienti(props) {
 
   function openEditModal(field, value){
     setModalField(field);
+    setModalChangeArray(false);
     if (Array.isArray(value)){
-      setModalValue(value.map(v => v.pershkrimi).join(', '));
-      setEditValue(value.map(v => v.pershkrimi).join(', '));
+      // show existing values in textarea (one per line)
+      const joined = value.map(v => v.pershkrimi).join('\n');
+      setModalValue(joined);
+      setEditValue(joined);
     } else if (typeof value === 'boolean') {
       setModalValue(value ? 'Po' : 'Jo');
       setEditValue(value ? 'Po' : 'Jo');
     } else {
-      setModalValue(value);
-      setEditValue(value);
+      setModalValue(value ?? '');
+      setEditValue(value ?? '');
     }
     setIsModalOpen(true);
   }
@@ -77,6 +82,8 @@ function Pacienti(props) {
     setIsModalOpen(false);
     setModalField('');
     setModalValue('');
+    setEditValue('');
+    setModalChangeArray(false);
   }
 
   function handleSave() {
@@ -84,8 +91,6 @@ function Pacienti(props) {
     const token = user?.accessToken || user?.token || user?.access_token;
     if (!token) {
       alert('Nuk jeni i loguar. Ju lutem identifikohuni përsëri.');
-      // optional: redirect to login
-      // history.push('/login');
       return;
     }
     const headers = {
@@ -98,6 +103,7 @@ function Pacienti(props) {
     let payload = {};
     let method = 'PUT';
 
+    // Simple/patient fields (unchanged)
     if(modalField === 'Emri dhe Mbiemri'){
       endpoint = `http://localhost:8080/api/pacientet/${id}`;
       payload = {...patient, emriMbiemri: editValue };
@@ -117,22 +123,28 @@ function Pacienti(props) {
       endpoint = `http://localhost:8080/api/pacientet/${id}`;
       payload = { ...patient, sigurimShendetsor: editValue === 'Po' };
     }
-    // Array fields
+
+    // Array fields — only proceed if user opted to change (modalChangeArray)
     else if (modalField === 'Alergji') {
+      if (!modalChangeArray) { closeEditModal(); return; }
       endpoint = `http://localhost:8080/api/alergjia/pacienti/${id}`;
-      payload = editValue.split(',').map(pershkrimi => ({ pershkrimi: pershkrimi.trim() }));
+      payload = editValue.split('\n').map(p => p.trim()).filter(Boolean).map(pershkrimi => ({ pershkrimi }));
       method = 'PUT';
     } else if (modalField === 'Kartela Vaksinimit') {
+      // unchanged behavior for vaccines (kept as before)
+      if (!modalChangeArray) { closeEditModal(); return; }
       endpoint = `http://localhost:8080/api/kartelavaksinimit/pacienti/${id}`;
-      payload = editValue.split(',').map(pershkrimi => ({ pershkrimi: pershkrimi.trim() }));
+      payload = editValue.split('\n').map(s => s.trim()).filter(Boolean).map(pershkrimi => ({ pershkrimi }));
       method = 'PUT';
     } else if (modalField === 'Ndërhyrje Operative') {
+      if (!modalChangeArray) { closeEditModal(); return; }
       endpoint = `http://localhost:8080/api/nderhyrje/pacienti/${id}`;
-      payload = editValue.split(',').map(pershkrimi => ({ pershkrimi: pershkrimi.trim() }));
+      payload = editValue.split('\n').map(p => p.trim()).filter(Boolean).map(pershkrimi => ({ pershkrimi }));
       method = 'PUT';
     } else if (modalField === 'Sëmundje Kronike') {
+      if (!modalChangeArray) { closeEditModal(); return; }
       endpoint = `http://localhost:8080/api/semundjekronike/pacienti/${id}`;
-      payload = editValue.split(',').map(pershkrimi => ({ pershkrimi: pershkrimi.trim() }));
+      payload = editValue.split('\n').map(p => p.trim()).filter(Boolean).map(pershkrimi => ({ pershkrimi }));
       method = 'PUT';
     } else if (modalField === 'Medikamente') {
       endpoint = `http://localhost:8080/api/medikamente/pacienti/${id}`;
@@ -162,7 +174,6 @@ function Pacienti(props) {
         try { body = text ? JSON.parse(text) : null; } catch(e) { body = text; }
         if (!res.ok) {
           console.error('Update failed response:', res.status, body);
-          // show backend message if present
           const message = body?.error || body?.message || `Server returned ${res.status}`;
           throw new Error(message);
         }
@@ -307,12 +318,53 @@ function Pacienti(props) {
       <Modal isOpen={isModalOpen} onClose={closeEditModal}>
         <ModalHeader>Edito: {modalField}</ModalHeader>
         <ModalBody>
-          <label className="block text-sm mb-2">Vlera e re:</label>
-          <input
-            className="block w-full border rounded p-2 mb-2 text-black"
-            value={editValue}
-            onChange={e => setEditValue(e.target.value)}
-          />
+          {arrayFieldsSet.has(modalField) ? (
+            <>
+              <div className="mb-3">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={modalChangeArray}
+                    onChange={e => setModalChangeArray(e.target.checked)}
+                    className="mr-2"
+                  />
+                  <span>Ndrysho listën (Po/Jo)?</span>
+                </label>
+                <p className="text-xs text-gray-600 mt-1">Nëse zgjidhni "Po", shtoni një element për rresht në zonën më poshtë.</p>
+              </div>
+              {modalChangeArray && (
+                <>
+                  <label className="block text-sm mb-2">Vlerat (një për rresht):</label>
+                  <textarea
+                    className="block w-full border rounded p-2 mb-2 text-black"
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    rows={6}
+                  />
+                </>
+              )}
+              {!modalChangeArray && (
+                <>
+                  <label className="block text-sm mb-2">Vlerat aktuale:</label>
+                  <textarea
+                    className="block w-full border rounded p-2 mb-2 text-black bg-gray-100"
+                    value={modalValue}
+                    readOnly
+                    rows={4}
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <label className="block text-sm mb-2">Vlera e re:</label>
+              <input
+                className="block w-full border rounded p-2 mb-2 text-black"
+                value={editValue}
+                onChange={e => setEditValue(e.target.value)}
+              />
+            </>
+          )}
         </ModalBody>
         <ModalFooter>
           <Button layout="outline" onClick={closeEditModal}>

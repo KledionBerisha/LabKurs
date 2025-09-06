@@ -14,6 +14,7 @@ const InfermierDashboard = lazy(()=>import('../pages/InfermierDashboard'))
 const ShtoPacientin = lazy(()=>import('../pages/ShtoPacientin'))
 const DocotorPage = lazy(()=>import('../pages/DoctorPage'))
 const Pacienti = lazy(()=>import('../pages/Pacienti'))
+const EditPacientin = lazy(() =>import('../pages/EditPacientin'))
 /**
  * ⚠ These are internal routes!
  * They will be rendered inside the app, using the default `containers/Layout`.
@@ -76,6 +77,10 @@ const routes = [
   {
     path: '/Pacienti',
     component: Pacienti,
+  },
+  {
+    path: '/EditPacientin',
+    component: EditPacientin,
   }
 ]
 
