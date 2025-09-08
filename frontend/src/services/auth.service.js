@@ -3,46 +3,38 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8080/api/auth/';
 
 class AuthService {
-    login(email, password) {
-        return axios
-        .post(API_URL + 'login', { email, password})
-        .then(response => {
-            if (response.data.accessToken && response.data.refreshToken) {
-                localStorage.setItem('user', JSON.stringify({
-                    email: email,
-                    accessToken: response.data.accessToken,
-                    refreshToken: response.data.refreshToken
-                }));
-            }
-            return response.data;
-        });
+    async login(email, password) {
+        const res = await axios.post(API_URL + 'login', { email, password });
+        const data = res.data;
+        if (data && data.accessToken && data.refreshToken) {
+            const stored = {
+                email,
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken,
+                role: (data.role || 'USER').toString().toUpperCase(),
+                id: data.id ?? null,
+                emriMbiemri: data.emriMbiemri ?? null
+            };
+            localStorage.setItem('user', JSON.stringify(stored));
+        }
+        return data;
+    }
+
+    getCurrentUser() {
+        try {
+            return JSON.parse(localStorage.getItem('user'));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    getToken() {
+        const u = this.getCurrentUser();
+        return u ? u.accessToken : null;
     }
 
     logout() {
         localStorage.removeItem('user');
-    }
-
-    refreshToken() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if(!user || !user.refreshToken) return Promise.reject('No refresh token available');
-
-        return axios
-        
-        .post(API_URL + 'refresh', { refreshToken: user.refreshToken })
-        .then(response => {
-            if (response.data.accessToken) {
-                const updatedUser = {
-                    ...user,
-                    accessToken: response.data.accessToken
-                };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-            }
-            return response.data;
-        });
-    }
-
-    getCurrentUser() {
-        return JSON.parse(localStorage.getItem('user'));
     }
 }
 
