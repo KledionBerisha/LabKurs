@@ -1,83 +1,156 @@
 import React, { useState, useEffect } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
-import { Input, Button } from '@windmill/react-ui'
+import { useHistory } from 'react-router-dom'
+import axios from 'axios'
 import AuthService from '../services/auth.service'
+import { Input, Label, Button } from '@windmill/react-ui'
 
-function EditProfile() {
+function EditProfile({ user, onClose }) {
   const history = useHistory()
-  const location = useLocation()
-  const token = AuthService.getToken && AuthService.getToken();
+
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8080'
+
+  const resolveToken = () => {
+    try {
+      const t1 = AuthService.getToken && AuthService.getToken()
+      if (t1 && typeof t1 === 'string') return t1
+      const cur = AuthService.getCurrentUser && AuthService.getCurrentUser()
+      return cur ? cur.accessToken : null
+    } catch (e) {
+      return null
+    }
+  }
 
   const initial = {
-    emriMbiemri: location.state?.user?.emriMbiemri || '',
-    username: location.state?.user?.username || '',
-    email: location.state?.user?.email || '',
-    password: '',
+    emriMbiemri: user?.emriMbiemri || '',
+    email: user?.email || '',
+    // do NOT prefill current password from any user object or storage
+    currentPassword: '',
+    newPassword: '',
   }
 
   const [form, setForm] = useState(initial)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    // if route provided a user keep it, otherwise you can fetch current user here
-    if (!location.state?.user && token) {
-      ;(async () => {
-        try {
-          const res = await fetch('/api/users/me', {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          if (res.ok) {
-            const data = await res.json()
-            setForm(f => ({ ...f, emriMbiemri: data.emriMbiemri || '', username: data.username || '', email: data.email || '' }))
-          }
-        } catch (e) {
-          // ignore
-        }
-      })()
+    if (user) {
+      setForm(f => ({
+        ...f,
+        emriMbiemri: user.emriMbiemri || '',
+        email: user.email || '',
+        // intentionally DO NOT set currentPassword from user/profile
+      }))
     }
-  }, [location.state, token])
+  }, [user])
+
+  useEffect(() => {
+    // if parent didn't supply user and we have a token, try to fetch profile
+    const token = resolveToken()
+    if (!user && token) {
+      axios
+        .get(`${API_BASE}/api/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          const d = res.data || {}
+          setForm(f => ({
+            ...f,
+            emriMbiemri: d.emriMbiemri || d.emriMbiemri || f.emriMbiemri,
+            email: d.email || f.email,
+          }))
+        })
+        .catch(() => {
+          // ignore, user can still edit fields manually
+        })
+    }
+  }, [user, API_BASE])
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm(f => ({ ...f, [name]: value }))
   }
 
+  const normalizeMessage = (maybe) => {
+    if (!maybe) return 'Unknown error'
+    if (typeof maybe === 'string') return maybe
+    if (maybe.error) return maybe.error
+    if (maybe.message) return maybe.message
+    try {
+      return JSON.stringify(maybe)
+    } catch (e) {
+      return String(maybe)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    const token = resolveToken()
     if (!token) return history.push('/login')
+
+    // require current password on client-side as well
+    if (!form.currentPassword || !form.currentPassword.trim()) {
+      setError('Current password is required to save changes')
+      return
+    }
+
     setLoading(true)
     try {
-      const res = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(form),
+      const payload = {
+        emriMbiemri: form.emriMbiemri,
+        email: form.email,
+        currentPassword: form.currentPassword,
+      }
+      if (form.newPassword) payload.newPassword = form.newPassword
+
+      const res = await axios.put(`${API_BASE}/api/users/profile`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      if (!res.ok) throw new Error('Update failed')
-      alert('Ruaj: Changes saved')
+
+      // if backend returns updated profile, update local stored user
+      const data = res.data || {}
+      try {
+        const storedRaw = AuthService.getCurrentUser && AuthService.getCurrentUser()
+        if (storedRaw) {
+          const stored = { ...storedRaw }
+          if (data.email) stored.email = data.email
+          if (data.emriMbiemri) stored.emriMbiemri = data.emriMbiemri
+          localStorage.setItem('user', JSON.stringify(stored))
+        }
+      } catch (e) {
+        // ignore localStorage errors
+      }
+
+      // clear currentPassword field after successful update
+      setForm(f => ({ ...f, currentPassword: '', newPassword: '' }))
+      if (onClose) onClose()
     } catch (err) {
-      alert('Ruaj: ' + err.message)
+      const payload = err?.response?.data || err?.message || err
+      setError(normalizeMessage(payload))
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async () => {
+    const token = resolveToken()
     if (!token) return history.push('/login')
     if (!window.confirm('A jeni të sigurt që dëshironi të fshini llogarinë?')) return
+
     setLoading(true)
     try {
-      const res = await fetch('/api/users/profile', {
-        method: 'DELETE',
+      await axios.delete(`${API_BASE}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (!res.ok) throw new Error('Delete failed')
-      alert('Fshij: Account deleted')
+      // logout after deletion
+      try {
+        AuthService.logout && AuthService.logout()
+      } catch (e) {
+        // ignore
+      }
       history.push('/login')
     } catch (err) {
-      alert('Fshij: ' + err.message)
+      setError(normalizeMessage(err?.response?.data || err?.message || err))
     } finally {
       setLoading(false)
     }
@@ -93,31 +166,40 @@ function EditProfile() {
         </label>
 
         <label className="block">
-          <span className="text-sm text-gray-600 dark:text-gray-300">Username</span>
-          <Input name="username" value={form.username} onChange={handleChange} />
-        </label>
-
-        <label className="block">
           <span className="text-sm text-gray-600 dark:text-gray-300">Email</span>
           <Input name="email" type="email" value={form.email} onChange={handleChange} />
         </label>
 
         <label className="block">
-          <span className="text-sm text-gray-600 dark:text-gray-300">Password</span>
-          <Input name="password" type="password" value={form.password} onChange={handleChange} />
+          <span className="text-sm text-gray-600 dark:text-gray-300">Current Password</span>
+          <Input
+            name="currentPassword"
+            type="password"
+            value={form.currentPassword}
+            onChange={handleChange}
+            required
+            placeholder="Enter current password to confirm changes"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm text-gray-600 dark:text-gray-300">New Password</span>
+          <Input name="newPassword" type="password" value={form.newPassword} onChange={handleChange} />
         </label>
 
         <div className="flex items-center space-x-3 mt-2">
-          <Button type="submit" disabled={loading} layout="outline">
+          <Button type="submit" disabled={loading || !form.currentPassword} layout="outline">
             Ruaj
           </Button>
           <Button type="button" onClick={handleDelete} disabled={loading} className="bg-red-500 hover:bg-red-600 text-white">
             Fshij
           </Button>
         </div>
+
+        {error && <div className="text-sm text-red-600 mt-2">{error}</div>}
       </form>
     </div>
   )
 }
 
-export default EditProfile;
+export default EditProfile

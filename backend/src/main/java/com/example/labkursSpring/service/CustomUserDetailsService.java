@@ -16,16 +16,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Do not log or print passwords. Only minimal info for debugging.
         System.out.println("[DEBUG] Loading user by email: " + email);
         Users user = userRepo.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        System.out.println("[DEBUG] Found user: " + user.getEmail() + ", password: " + user.getPassword());
+        System.out.println("[DEBUG] Found user: " + user.getEmail());
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getEmail())
             .password(user.getPassword())
             .authorities("USER")
             .build();
     }
-}
 
-// No PasswordEncoder or BCrypt is used here, so authentication will use plain text passwords from the database.
+}
