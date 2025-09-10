@@ -3,18 +3,34 @@ import { SidebarContext } from '../context/SidebarContext'
 import {
   BellIcon,
   MenuIcon,
+  OutlinePersonIcon,
+  OutlineCogIcon,
+  OutlineLogoutIcon,
 } from '../icons'
-import { Badge, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
+import { Avatar, Input, Badge, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
+import AuthService from '../services/auth.service';
+import { useHistory } from 'react-router-dom';
 
 function Header() {
   const { mode, toggleMode } = useContext(WindmillContext)
   const { toggleSidebar } = useContext(SidebarContext)
 
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   function handleNotificationsClick() {
     setIsNotificationsMenuOpen(!isNotificationsMenuOpen)
   }
+
+  function handleProfileClick() {
+    setIsProfileMenuOpen(!isProfileMenuOpen)
+  }
+
+  const history = useHistory();
+  const handleLogout=()=>{
+      AuthService.logout();
+      history.push('/login');
+  };
 
   return (
     <header className="z-40 py-4 bg-white shadow-bottom dark:bg-gray-800">
@@ -27,7 +43,7 @@ function Header() {
         >
           <MenuIcon className="w-6 h-6" aria-hidden="true" />
         </button>
-        <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-800">
+        <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-800 space-x-6">
           {/* <!-- Notifications menu --> */}
           <li className="relative">
             <button
@@ -55,6 +71,35 @@ function Header() {
               </DropdownItem>
               <DropdownItem onClick={() => alert('Alerts!')}>
                 <span>Message</span>
+              </DropdownItem>
+            </Dropdown>
+          </li>
+          <li className="relative">
+            <button
+              className="rounded-full focus:shadow-outline-purple focus:outline-none"
+              onClick={handleProfileClick}
+              aria-label="Account"
+              aria-haspopup="true"
+            >
+              <Avatar
+                className="align-middle"
+                
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+            <Dropdown
+              align="right"
+              isOpen={isProfileMenuOpen}
+              onClose={() => setIsProfileMenuOpen(false)}
+            >
+              <DropdownItem tag="a" href="#">
+                <OutlinePersonIcon className="w-4 h-4 mr-3" aria-hidden="true" />
+                <span>Profile</span>
+              </DropdownItem>
+              <DropdownItem onClick={handleLogout}>
+                <OutlineLogoutIcon className="w-4 h-4 mr-3" aria-hidden="true" />
+                <span>Log out</span>
               </DropdownItem>
             </Dropdown>
           </li>
