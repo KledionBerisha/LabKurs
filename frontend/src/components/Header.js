@@ -7,9 +7,10 @@ import {
   OutlineCogIcon,
   OutlineLogoutIcon,
 } from '../icons'
-import { Avatar, Input, Badge, Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
+import { Avatar, Input, Badge, Dropdown, DropdownItem, WindmillContext, Modal, ModalHeader, ModalBody } from '@windmill/react-ui'
 import AuthService from '../services/auth.service';
 import { useHistory } from 'react-router-dom';
+import EditProfile from '../pages/EditProfile'
 
 function Header() {
   const { mode, toggleMode } = useContext(WindmillContext)
@@ -17,6 +18,7 @@ function Header() {
 
   const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   function handleNotificationsClick() {
     setIsNotificationsMenuOpen(!isNotificationsMenuOpen)
@@ -24,6 +26,16 @@ function Header() {
 
   function handleProfileClick() {
     setIsProfileMenuOpen(!isProfileMenuOpen)
+  }
+
+  function openProfileModal(e){
+    if (e && e.preventDefault) e.preventDefault()
+    setIsProfileMenuOpen(false)
+    setIsProfileModalOpen(true)
+  }
+
+  function closeProfileModal(){
+    setIsProfileModalOpen(false)
   }
 
   const history = useHistory();
@@ -93,7 +105,7 @@ function Header() {
               isOpen={isProfileMenuOpen}
               onClose={() => setIsProfileMenuOpen(false)}
             >
-              <DropdownItem tag="a" href="#">
+              <DropdownItem tag="button" onClick={openProfileModal}>
                 <OutlinePersonIcon className="w-4 h-4 mr-3" aria-hidden="true" />
                 <span>Profile</span>
               </DropdownItem>
@@ -102,6 +114,11 @@ function Header() {
                 <span>Log out</span>
               </DropdownItem>
             </Dropdown>
+            <Modal isOpen ={isProfileModalOpen} onClose={closeProfileModal}>
+              <ModalBody>
+                <EditProfile />
+              </ModalBody>
+            </Modal>
           </li>
         </ul>
       </div>
