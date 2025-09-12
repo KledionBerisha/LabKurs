@@ -134,7 +134,7 @@ function EditProfile({ user, onClose }) {
       setForm(f => ({ ...f, currentPassword: '', newPassword: '' }))
       // disable fields again until user types current password
       setFieldsEnabled(false)
-      if (onClose) onClose()
+      if (onClose) onClose(true)
     } catch (err) {
       const payload = err?.response?.data || err?.message || err
       setError(normalizeMessage(payload))

@@ -62,20 +62,30 @@ function Header() {
   }
 
   function closeProfileModal() {
+    // allow caller to request a success alert: closeProfileModal(true)
+    // default is no alert
+    const showSuccess = arguments.length ? arguments[0] === true : false
     setIsProfileModalOpen(false)
     // refresh profile data after edit: prefer backend, fallback to stored user
     const token = AuthService.getToken && AuthService.getToken()
     const stored = AuthService.getCurrentUser && AuthService.getCurrentUser()
     if (!token) {
       setProfileUser(stored || null)
+      if (showSuccess) window.alert('Changes saved successfully')
       return
     }
     fetch('http://localhost:8080/api/users/me', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : stored))
-      .then((data) => setProfileUser(data || stored || null))
-      .catch(() => setProfileUser(stored || null))
+      .then((data) => {
+        setProfileUser(data || stored || null)
+        if (showSuccess) window.alert('Changes saved successfully')
+      })
+      .catch(() => {
+        setProfileUser(stored || null)
+        if (showSuccess) window.alert('Changes saved successfully')
+      })
   }
 
   const history = useHistory()
@@ -127,7 +137,7 @@ function Header() {
               aria-label="Account"
               aria-haspopup="true"
             >
-              <Avatar className="align-middle" alt="" aria-hidden="true" />
+              <OutlinePersonIcon className="align-middle w-8 h-8 rounded-full" aria-hidden="true" />
             </button>
 
             <Dropdown align="right" isOpen={isProfileMenuOpen} onClose={() => setIsProfileMenuOpen(false)}>
