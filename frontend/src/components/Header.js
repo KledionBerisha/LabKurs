@@ -63,6 +63,19 @@ function Header() {
 
   function closeProfileModal() {
     setIsProfileModalOpen(false)
+    // refresh profile data after edit: prefer backend, fallback to stored user
+    const token = AuthService.getToken && AuthService.getToken()
+    const stored = AuthService.getCurrentUser && AuthService.getCurrentUser()
+    if (!token) {
+      setProfileUser(stored || null)
+      return
+    }
+    fetch('http://localhost:8080/api/users/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : stored))
+      .then((data) => setProfileUser(data || stored || null))
+      .catch(() => setProfileUser(stored || null))
   }
 
   const history = useHistory()

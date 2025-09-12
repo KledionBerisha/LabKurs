@@ -31,6 +31,9 @@ function EditProfile({ user, onClose }) {
   const [form, setForm] = useState(initial)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  // controls whether name/email/new-password can be edited
+  const [fieldsEnabled, setFieldsEnabled] = useState(false)
+
 
   useEffect(() => {
     if (user) {
@@ -68,6 +71,12 @@ function EditProfile({ user, onClose }) {
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm(f => ({ ...f, [name]: value }))
+    // enable editing of other fields once current password has some non-empty value
+    if (name === 'currentPassword') {
+      setFieldsEnabled(!!(value && value.trim().length > 0))
+      // clear previous error when user starts typing current password
+      if (value && value.trim().length > 0) setError('')
+    }
   }
 
   const normalizeMessage = (maybe) => {
@@ -123,6 +132,8 @@ function EditProfile({ user, onClose }) {
 
       // clear currentPassword field after successful update
       setForm(f => ({ ...f, currentPassword: '', newPassword: '' }))
+      // disable fields again until user types current password
+      setFieldsEnabled(false)
       if (onClose) onClose()
     } catch (err) {
       const payload = err?.response?.data || err?.message || err
@@ -162,12 +173,12 @@ function EditProfile({ user, onClose }) {
       <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded shadow-sm space-y-4">
         <label className="block">
           <span className="text-sm text-gray-600 dark:text-gray-300">Emri Mbiemri</span>
-          <Input name="emriMbiemri" value={form.emriMbiemri} onChange={handleChange} />
+          <Input name="emriMbiemri" value={form.emriMbiemri} onChange={handleChange} disabled={!fieldsEnabled}/>
         </label>
 
         <label className="block">
           <span className="text-sm text-gray-600 dark:text-gray-300">Email</span>
-          <Input name="email" type="email" value={form.email} onChange={handleChange} />
+          <Input name="email" type="email" value={form.email} onChange={handleChange} disabled={!fieldsEnabled}/>
         </label>
 
         <label className="block">
@@ -184,7 +195,7 @@ function EditProfile({ user, onClose }) {
 
         <label className="block">
           <span className="text-sm text-gray-600 dark:text-gray-300">New Password</span>
-          <Input name="newPassword" type="password" value={form.newPassword} onChange={handleChange} />
+          <Input name="newPassword" type="password" value={form.newPassword} onChange={handleChange} disabled={!fieldsEnabled}/>
         </label>
 
         <div className="flex items-center space-x-3 mt-2">
