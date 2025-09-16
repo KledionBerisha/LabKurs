@@ -109,6 +109,12 @@ function Login() {
                 <Button className="mt-4" block type="submit">Log in</Button>
               </form>
               <hr className="my-8" />
+              <div className='text-center'>
+                <a href="register.js" className="text-blue-600 hover:underline font-medium">Register Here!</a> 
+                <p className='mt2 text-sm text-gray-600 dark:text-gray-400'>
+                  Create an account to access the platform. If you're a doctor or nurse, choose the correct role during registration.
+                </p>
+              </div>
             </div>
           </main>
         </div>
