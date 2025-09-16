@@ -1,81 +1,64 @@
 import React, { useState, useEffect } from 'react'
-import { SearchIcon, EditIcon, TrashIcon } from '../icons'
+import { useHistory } from 'react-router-dom'
+
 import PageTitle from '../components/Typography/PageTitle'
-import { useHistory } from 'react-router-dom';
 import {
+  TableBody,
+  TableContainer,
   Table,
   TableHeader,
   TableCell,
-  TableBody,
   TableRow,
   TableFooter,
-  TableContainer,
-  Button,
   Pagination,
 } from '@windmill/react-ui'
 
-function Dashboard() {
-  const [searchNumriPersonal, setSearchNumriPersonal] = useState('')
-  const [searchEmriMbiemri, setSearchEmriMbiemri] = useState('')
+function DoctorPage() {
   const [page, setPage] = useState(1)
   const [data, setData] = useState([])
   const [allPatients, setAllPatients] = useState([])
+  const [searchNumriPersonal, setSearchNumriPersonal] = useState('')
+  const [searchEmriMbiemri, setSearchEmriMbiemri] = useState('')
+  const history = useHistory()
+
+  // pagination setup
   const resultsPerPage = 10
   const totalResults = allPatients.length
-  const history = useHistory();
 
+  // Fetch patients from backend
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     const token = user?.accessToken;
-    if(!token){
+    if (!token){
       console.error('No token found, redirecting to login.');
       return;
     }
-    fetch('http://localhost:8080/api/pacientet', {
-        headers: {
+    fetch('http://localhost:8080/api/pacientet',{
+      headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
       .then(res => {
-        if(!res.ok) throw new Error('Failed to fetch patients.');
+        if(!res.ok) throw new Error('Failed to detch patients');
         return res.json();
       })
       .then(patients => {
+        console.log('Fetched patients:', patients); // DEBUG LOG
         setAllPatients(Array.isArray(patients) ? patients : [])
         setData(Array.isArray(patients) ? patients.slice(0, resultsPerPage) : [])
       })
       .catch(err => console.error('Error fetching patients:', err))
   }, [])
 
+  // pagination change control
   function onPageChange(p) {
     setPage(p)
     const start = (p - 1) * resultsPerPage
     setData(allPatients.slice(start, start + resultsPerPage))
   }
 
-  function handleDelete(pacientiID) {
-  if (!window.confirm('A jeni i sigurt që doni të fshini këtë pacient?')) return;
-  const user = JSON.parse(localStorage.getItem('user'));
-  const token = user?.accessToken;
-  fetch(`http://localhost:8080/api/pacientet/${pacientiID}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    }
-  })
-    .then(res => {
-      if (res.ok) {
-        setAllPatients(prev => prev.filter(p => p.pacientiId !== pacientiID && p.id !== pacientiID && p.pacientiID !== pacientiID));
-        setData(prev => prev.filter(p => p.pacientiId !== pacientiID && p.id !== pacientiID && p.pacientiID !== pacientiID));
-      } else {
-        alert('Fshirja dështoi!');
-      }
-    })
-    .catch(() => alert('Gabim gjatë lidhjes me serverin!'));
-  }
-
+  // Search handler
   function handleSearch(e) {
     e.preventDefault()
     let filtered = allPatients
@@ -89,18 +72,9 @@ function Dashboard() {
     setPage(1)
   }
 
-  function handleEdit(pacient){
-    console.log('Editing patient:', pacient); // Add this line
-    history.push({
-      pathname: '/app/EditPacientin',
-      state: {patient: pacient}
-    });
-  }
-
   return (
     <>
-      <PageTitle>Dashboard</PageTitle>
-      {/* Search Bar */}
+      <PageTitle>Kerko Pacientin</PageTitle>
       <form onSubmit={handleSearch} className="input-type-pacientat w-full flex justify-between items-center px-4 py-3 mb-4 bg-white dark:bg-gray-800 rounded-md shadow">
         <div className="flex items-center gap-4">
           <input
@@ -110,6 +84,7 @@ function Dashboard() {
             onChange={e => setSearchNumriPersonal(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+
           <input
             type="text"
             placeholder="Emri Mbiemri"
@@ -133,12 +108,18 @@ function Dashboard() {
               <TableCell>Numri Personal</TableCell>
               <TableCell>Ditelindja</TableCell>
               <TableCell>Adresa</TableCell>
-              <TableCell>Ndrysho</TableCell>
             </tr>
           </TableHeader>
           <TableBody>
             {data.map((user, i) => (
-              <TableRow key={i}>
+              <TableRow
+                key={i}
+                onClick={() => history.push({
+                  pathname: '/app/Pacienti', // Correct path for route
+                  state: { patient: user }
+                })}
+                className="cursor-pointer hover:bg-purple-100 dark:hover:bg-purple-700 transition-colors"
+              >
                 <TableCell>
                   <div className="flex items-center text-sm">
                     <div>
@@ -153,17 +134,7 @@ function Dashboard() {
                   <span className="text-sm">{user.ditelindja ? new Date(user.ditelindja).toLocaleDateString() : ''}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{user.vendbanimiEmri || user.vendbanimiID}</span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-4">
-                    <Button layout="link" size="icon" aria-label="Edit" onClick={() => handleEdit(user)}>
-                      <EditIcon className="w-5 h-5" aria-hidden="true" />
-                    </Button>
-                    <Button layout="link" size="icon" aria-label="Delete" onClick={() => handleDelete(user.pacientiId || user.pacientiID || user.id)}>
-                      <TrashIcon className="w-5 h-5" aria-hidden="true" />
-                    </Button>
-                  </div>
+                  <span className="text-sm">{user.vendbanimiID}</span>
                 </TableCell>
               </TableRow>
             ))}
@@ -182,4 +153,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default DoctorPage

@@ -4,6 +4,8 @@ import { NavLink, Route } from 'react-router-dom'
 import * as Icons from '../../icons'
 import SidebarSubmenu from './SidebarSubmenu'
 import { Link } from 'react-router-dom';
+import AuthService from '../../services/auth.service';
+import { useHistory } from 'react-router-dom';
 
 function Icon({ icon, ...props }) {
   const Icon = Icons[icon]
@@ -11,6 +13,11 @@ function Icon({ icon, ...props }) {
 }
 
 function SidebarContent() {
+  const history = useHistory();
+  const handleLogout=()=>{
+    AuthService.logout();
+    history.push('/login');
+  };
   return (
     <div className="py-4 text-gray-500 dark:text-gray-400">
       <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
@@ -41,13 +48,13 @@ function SidebarContent() {
           )
         )}
       </ul>
-      <div class="flex flex-col h-full"> 
-        <div class="mt-auto mb-4 flex justify-center">
-          <Link to="/login"
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center"
-          >
-          Log out
-          </Link>
+      <div className="flex flex-col h-full"> 
+        <div className="mt-auto mb-4 flex justify-center">
+          <button
+          onClick={handleLogout}
+          className='px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center'>
+            Log out
+          </button>
         </div>
       </div>
     </div>
