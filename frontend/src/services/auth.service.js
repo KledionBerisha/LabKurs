@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_URL = 'http://localhost:8080/api/auth/';
 
 class AuthService {
+    async register(user){
+        const res = await axios.post(API_URL + 'register', user);
+        return res.data; 
+    }
+
     async login(email, password) {
         const res = await axios.post(API_URL + 'login', { email, password });
         const data = res.data;
