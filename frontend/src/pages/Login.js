@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import AuthService from '../services/auth.service';
 
 import ImageLight from '../assets/img/login-office.jpeg';
@@ -110,9 +110,9 @@ function Login() {
               </form>
               <hr className="my-8" />
               <div className='text-center'>
-                <a href="register.js" className="text-blue-600 hover:underline font-medium">Register Here!</a> 
+                <Link to="/register" className="text-blue-600 hover:underline font-medium">Register Here!</Link> 
                 <p className='mt2 text-sm text-gray-600 dark:text-gray-400'>
-                  Create an account to access the platform. If you're a doctor or nurse, choose the correct role during registration.
+                  Krijoni një llogari për të pasur qasje në platformë. Nëse jeni mjek ose infermier, zgjidhni rolin përkatës gjatë procesit të regjistrimit.
                 </p>
               </div>
             </div>
