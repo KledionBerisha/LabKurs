@@ -99,7 +99,7 @@ function Login() {
               <form onSubmit={handleLogin}>
                 <Label>
                   <span>Email</span>
-                  <Input className="mt-1" type="email" placeholder="john@doe.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                  <Input className="mt-1" type="email" placeholder="user@gmail.com" value={email} onChange={e => setEmail(e.target.value)} required />
                 </Label>
                 <Label className="mt-4">
                   <span>Password</span>
