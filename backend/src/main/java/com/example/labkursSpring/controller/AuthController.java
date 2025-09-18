@@ -194,7 +194,8 @@ public class AuthController {
             d.setEmriMbiemri(request.getFirstName() + " " + request.getLastName());
             d.setUser(user);
             doktoriRepo.save(d);
-        } else if("Infermier".equalsIgnoreCase(request.getRole())){
+        } 
+        else if("Infermier".equalsIgnoreCase(request.getRole())){
             Infermieri i = new Infermieri();
             i.setUsername(request.getUsername());
             i.setPassword(request.getPassword());
