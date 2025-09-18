@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.labkursSpring.dto.AuthRequest;
 import com.example.labkursSpring.dto.AuthResponse;
 import com.example.labkursSpring.dto.RefreshRequest;
+import com.example.labkursSpring.dto.RegisterRequest;
 import com.example.labkursSpring.model.Doktori;
 import com.example.labkursSpring.model.Infermieri;
 import com.example.labkursSpring.model.Users;
@@ -170,4 +171,39 @@ public class AuthController {
         RoleInfo roleInfo = determineRoleInfo(user, username);
         return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken, roleInfo.role, roleInfo.id, roleInfo.emriMbiemri));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        //check if user with same email or username exists
+        if (userRepo.findByEmail(request.getEmail()).isPresent()){
+            return ResponseEntity.badRequest().body("Email already exists!");
+        }
+
+        // create base user
+
+        Users user = new Users();
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        userRepo.save(user);
+
+        // attach doctor or infermier depending on role
+        if("Doktor".equalsIgnoreCase(request.getRole())){
+            Doktori d = new Doktori();
+            d.setUsername(request.getUsername());
+            d.setPassword(request.getPassword());
+            d.setEmriMbiemri(request.getFirstName() + " " + request.getLastName());
+            d.setUser(user);
+            doktoriRepo.save(d);
+        } else if("Infermier".equalsIgnoreCase(request.getRole())){
+            Infermieri i = new Infermieri();
+            i.setUsername(request.getUsername());
+            i.setPassword(request.getPassword());
+            i.setEmriMbiemri(request.getFirstName() + " " + request.getLastName());
+            i.setUser(user);
+            infermieriRepo.save(i);
+        }
+
+        return ResponseEntity.ok("User registered successfully!");
+    }
+    
 }
