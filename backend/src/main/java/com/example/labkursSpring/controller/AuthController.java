@@ -77,7 +77,7 @@ public class AuthController {
                 Optional<Doktori> dokOpt = doktoriRepo.findByUser_UserId(uid);
                 if (dokOpt.isPresent()) {
                     Doktori d = dokOpt.get();
-                    info.role = "DOCTOR";
+                    info.role = "DOKTOR";
                     info.id = d.getDoktoriId();
                     info.emriMbiemri = d.getEmriMbiemri();
                     return info;
@@ -101,7 +101,7 @@ public class AuthController {
             Optional<Doktori> dokByUsername = doktoriRepo.findByUsernameIgnoreCase(ident);
             if (dokByUsername.isPresent()) {
                 Doktori d = dokByUsername.get();
-                info.role = "DOCTOR";
+                info.role = "DOKTOR";
                 info.id = d.getDoktoriId();
                 info.emriMbiemri = d.getEmriMbiemri();
                 return info;
@@ -119,7 +119,7 @@ public class AuthController {
             Optional<Doktori> dokByUserEmail = doktoriRepo.findByUser_EmailIgnoreCase(ident);
             if (dokByUserEmail.isPresent()) {
                 Doktori d = dokByUserEmail.get();
-                info.role = "DOCTOR";
+                info.role = "DOKTOR";
                 info.id = d.getDoktoriId();
                 info.emriMbiemri = d.getEmriMbiemri();
                 return info;
