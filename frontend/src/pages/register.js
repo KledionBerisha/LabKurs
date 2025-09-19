@@ -123,6 +123,9 @@ return (
                 onChange={onChange}
                 className="mt-1 block w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-200"
             >
+                <option value="" disabled>
+                    Zgjedh rolin
+                </option>
                 <option value="doctor">Doktor</option>
                 <option value="infermier">Infermier</option>
             </select>
