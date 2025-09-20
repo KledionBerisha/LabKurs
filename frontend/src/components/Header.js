@@ -105,25 +105,6 @@ function Header() {
           <MenuIcon className="w-6 h-6" aria-hidden="true" />
         </button>
         <ul className="w-full flex justify-end items-center px-6 py-4 bg-white dark:bg-gray-800 space-x-6">
-          <li className="relative">
-            <button
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none"
-              onClick={handleNotificationsClick}
-              aria-label="Notifications"
-              aria-haspopup="true"
-            >
-            </button>
-
-            <Dropdown align="right" isOpen={isNotificationsMenuOpen} onClose={() => setIsNotificationsMenuOpen(false)}>
-              <DropdownItem tag="a" href="#" className="justify-between">
-                <span>Alergji</span>
-                <Badge type="danger">1</Badge>
-              </DropdownItem>
-              <DropdownItem onClick={() => alert('Alerts!')}>
-                <span>Message</span>
-              </DropdownItem>
-            </Dropdown>
-          </li>
 
           <li className="relative">
             <button
