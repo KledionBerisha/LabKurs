@@ -94,10 +94,7 @@ function Pacienti(props) {
                   {patient.sigurimShendetsor ? 'Po' : 'Jo'}
                 </td>
               </tr>
-              <tr className={
-                details.alergji && details.alergji.length > 0 ? "bg-red-400 dark:bg-red-900" : ""
-                }
-              >
+              <tr>
                 <td className="border border-gray-200 dark:border-gray-700 p-2 bg-gray-50 dark:bg-gray-800">Alergji</td>
                 <td className="border border-gray-200 dark:border-gray-700 p-2" colSpan="3">
                   {details.alergji && details.alergji.length > 0 ? details.alergji.map(a => a.pershkrimi).join(', ') : 'Asnjë alergji e raportuar.'}
