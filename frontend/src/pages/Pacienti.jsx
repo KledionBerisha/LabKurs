@@ -54,6 +54,14 @@ function Pacienti(props) {
       <PageTitle>Pacienti</PageTitle>
       <TableContainer>
         <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg shadow-md">
+          
+          {/**Alergji Alert! */}
+          { details.alergji && details.alergji.length > 0 && (
+            <div className="mb-4 p-3 text-white font-bold text-lg bg-red-600 dark:bg-red-800 rounded-lg shadow">
+              Ky Pacient ka Alergji: {details.alergji.map(a => a.pershkrimi).join(', ')}
+            </div>
+          )}
+
           <table className="w-full text-sm text-left text-gray-700 dark:text-gray-300 border-collapse border border-gray-200 dark:border-gray-700">
             <tbody>
               <tr>
