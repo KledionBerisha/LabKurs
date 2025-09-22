@@ -60,9 +60,20 @@ public class AlergjiaController {
         Alergjia existing = alergjiaRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Alergjia not found"));
 
-        if (payload.get("pershkrimi") != null) {
-            existing.setPershkrimi(payload.get("pershkrimi").toString());
+        // Check if we should delete the allergy record (empty description)
+        if (payload.containsKey("pershkrimi")) {
+            String pershkrimi = (payload.get("pershkrimi") == null ? "" : payload.get("pershkrimi").toString());
+            
+            if(pershkrimi.isBlank()) {
+                // Delete the allergy record if description is empty
+                alergjiaRepo.delete(existing);
+                return ResponseEntity.noContent().build();
+            }
+            else {
+                existing.setPershkrimi(pershkrimi);
+            }
         }
+
         // optionally update pacient reference if provided
         Long newPacientiId = extractPacientiId(payload);
         if (newPacientiId != null) {
@@ -73,5 +84,21 @@ public class AlergjiaController {
 
         Alergjia saved = alergjiaRepo.save(existing);
         return ResponseEntity.ok(saved);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!alergjiaRepo.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Alergjia not found");
+        }
+        alergjiaRepo.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+    @DeleteMapping("/pacienti/{pacientId}")
+    public ResponseEntity<Void> deleteByPacient(@PathVariable Long pacientId) {
+        List<Alergjia> alergjite = alergjiaRepo.findByPacient_PacientiId(pacientId);
+        alergjiaRepo.deleteAll(alergjite);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -58,6 +58,39 @@ function EditPacientin() {
     return { res, text };
   };
 
+  // Function to delete detail records
+  const deleteDetailRecord = async (recordType, patientId) => {
+    const headers = getAuthHeaders();
+    
+    try {
+      let endpoint = '';
+      switch(recordType) {
+        case 'alergji':
+          endpoint = `http://localhost:8080/api/alergjia/pacienti/${patientId}`;
+          break;
+        case 'nderhyrje':
+          endpoint = `http://localhost:8080/api/nderhyrje/pacienti/${patientId}`;
+          break;
+        case 'semundjeKronike':
+          endpoint = `http://localhost:8080/api/semundjekronike/pacienti/${patientId}`;
+          break;
+        default:
+          return;
+      }
+      
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers
+      });
+      
+      if (!response.ok) {
+        console.error(`Failed to delete ${recordType} records`);
+      }
+    } catch (error) {
+      console.error(`Error deleting ${recordType} records:`, error);
+    }
+  };
+
   useEffect(() => {
     if (!patient || !token) {
       return;
@@ -122,40 +155,61 @@ function EditPacientin() {
       const bool = value === 'true' || value === true;
       setFormData((prev) => ({ ...prev, [name]: bool }));
       setShowTextBox((prev) => ({ ...prev, [name]: bool }));
+      
+      // If switching from Yes to No, delete the record and clear the detail field
       if (!bool) {
-        if (name === 'alergji') setFormData((prev) => ({ ...prev, alergjiDetaje: '' }));
-        if (name === 'nderhyrje') setFormData((prev) => ({ ...prev, nderhyrjeDetaje: '' }));
-        if (name === 'semundjeKronike') setFormData((prev) => ({ ...prev, semundjeKronikeDetaje: '' }));
+        if (name === 'alergji' || name === 'nderhyrje' || name === 'semundjeKronike') {
+          const detailField = `${name}Detaje`;
+          setFormData((prev) => ({ ...prev, [detailField]: '' }));
+          
+          // Delete the record from the backend
+          if (patient && patient.pacientiID) {
+            deleteDetailRecord(name, patient.pacientiID);
+          }
+        }
       }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  };
+  }; 
 
   const updateDetail = async (urlBase, value, existingArray, idField) => {
-    if (!value) return { ok: true, status: 200, body: null };
     const headers = getAuthHeaders();
 
-    if (Array.isArray(existingArray) && existingArray.length > 0) {
+    // Delete if the value is empty but Database have records
+    if(!value || value.trim() === ''){
+      if(Array.isArray(existingArray) && existingArray.length > 0){
+        const itemId = existingArray[0][idField];
+        if(itemId){
+          const url = `http://localhost:8080/api/${urlBase}/${itemId}`;
+          const res = await fetch(url, { method: "DELETE", headers});
+          return { ok: res.ok, status: res.status,body: await res.text() };
+        }
+      }
+      return {ok: true, status: 200, body: null};
+    }
+
+    // Update the existing records
+    if(Array.isArray(existingArray) && existingArray.length > 0){
       const itemId = existingArray[0][idField];
-      if (itemId) {
+      if(itemId) {
         const url = `http://localhost:8080/api/${urlBase}/${itemId}`;
-        const { res, text } = await fetchWithDebug(url, {
-          method: 'PUT',
+        const res = await fetch( url, {
+          method: "PUT",
           headers,
-          body: JSON.stringify({ pershkrimi: value, pacientiId: formData.pacientiID }),
+          body: JSON.stringify({ pershkrimi: value, pacientiId: formData.pacientiID}),
         });
-        return { ok: res.ok, status: res.status, body: text };
+        return { ok: res.ok, status: res.status, body: await res.text()};
       }
     }
 
     const urlCreate = `http://localhost:8080/api/${urlBase}`;
-    const { res, text } = await fetchWithDebug(urlCreate, {
-      method: 'POST',
+    const res = await fetch(urlCreate, {
+      method: "POST",
       headers,
-      body: JSON.stringify({ pershkrimi: value, pacientiId: formData.pacientiID }),
+      body: JSON.stringify({ pershkrimi:value, pacientiId: formData.pacientiID}),
     });
-    return { ok: res.ok, status: res.status, body: text };
+    return { ok: res.ok, status: res.status, body: res.text()};
   };
 
   const handleSubmit = async (e) => {
@@ -191,16 +245,14 @@ function EditPacientin() {
       ];
 
       for (const op of operations) {
-        const value = formData[op.field];
-        if (!value) {
-          continue;
-        }
+        const value = formData[op.field] || "";
         const result = await updateDetail(op.url, value, op.array, op.idField);
+
         if (!result.ok) {
-          if (result.status === 401) {
-            alert(`Autorizim i pavlefshëm për: ${op.field} (401). Kontrollo token/rolet në backend.`);
-            return;
-          }
+            if (result.status === 401) {
+              alert(`Autorizim i pavlefshëm për: ${op.field} (401). Kontrollo token/rolet në backend.`);
+                return;
+            }
           alert(`Gabim gjatë përditësimit të fushës: ${op.field}. (Status: ${result.status})`);
           return;
         }
@@ -312,7 +364,7 @@ function EditPacientin() {
                 value="true"
                 name="alergji"
                 checked={formData.alergji === true}
-                onChange={(e) => { handleChange({ target: { name: 'alergji', value: 'true', type: 'radio' } }); }}
+                onChange={handleChange}
               />
               <span className="ml-2">Po</span>
             </Label>
@@ -322,7 +374,7 @@ function EditPacientin() {
                 value="false"
                 name="alergji"
                 checked={formData.alergji === false}
-                onChange={(e) => { handleChange({ target: { name: 'alergji', value: 'false', type: 'radio' } }); }}
+                onChange={handleChange}
               />
               <span className="ml-2">Jo</span>
             </Label>
@@ -339,11 +391,11 @@ function EditPacientin() {
           <Label className="mt-4">A ka pasur nderhyrje operative?</Label>
           <div className="mt-2">
             <Label radio>
-              <Input type="radio" value="true" name="nderhyrje" checked={formData.nderhyrje === true} onChange={(e) => { handleChange({ target: { name: 'nderhyrje', value: 'true', type: 'radio' } }); }} />
+              <Input type="radio" value="true" name="nderhyrje" checked={formData.nderhyrje === true} onChange={handleChange} />
               <span className="ml-2">Po</span>
             </Label>
             <Label className="ml-6" radio>
-              <Input type="radio" value="false" name="nderhyrje" checked={formData.nderhyrje === false} onChange={(e) => { handleChange({ target: { name: 'nderhyrje', value: 'false', type: 'radio' } }); }} />
+              <Input type="radio" value="false" name="nderhyrje" checked={formData.nderhyrje === false} onChange={handleChange} />
               <span className="ml-2">Jo</span>
             </Label>
           </div>
@@ -354,11 +406,11 @@ function EditPacientin() {
           <Label className="mt-4">A ka semundje kronike?</Label>
           <div className="mt-2">
             <Label radio>
-              <Input type="radio" value="true" name="semundjeKronike" checked={formData.semundjeKronike === true} onChange={(e) => { handleChange({ target: { name: 'semundjeKronike', value: 'true', type: 'radio' } }); }} />
+              <Input type="radio" value="true" name="semundjeKronike" checked={formData.semundjeKronike === true} onChange={handleChange} />
                 <span className="ml-2">Po</span>
             </Label>
             <Label className="ml-6" radio>
-              <Input type="radio" value="false" name="semundjeKronike" checked={formData.semundjeKronike === false} onChange={(e) => { handleChange({ target: { name: 'semundjeKronike', value: 'false', type: 'radio' } }); }} />
+              <Input type="radio" value="false" name="semundjeKronike" checked={formData.semundjeKronike === false} onChange={handleChange} />
               <span className="ml-2">Jo</span>
             </Label>
           </div>
