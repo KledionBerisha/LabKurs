@@ -57,18 +57,44 @@ public class SemundjeKronikeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SemundjeKronike> update(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-        SemundjeKronike existing = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Semundje not found"));
+    SemundjeKronike existing = repo.findById(id)
+    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Semundje not found"));
 
-        if (payload.get("pershkrimi") != null) existing.setPershkrimi(payload.get("pershkrimi").toString());
+    if (payload.containsKey("pershkrimi")) {
+    String pershkrimi = (payload.get("pershkrimi") == null ? "" : payload.get("pershkrimi").toString());
 
-        Long newPacientiId = extractPacientiId(payload);
-        if (newPacientiId != null) {
-            Pacient p = pacientRepo.findById(newPacientiId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pacient not found"));
-            existing.setPacient(p);
+    if (pershkrimi.isBlank()) {
+        repo.delete(existing);
+        return ResponseEntity.noContent().build();
+    } else {
+        existing.setPershkrimi(pershkrimi);
         }
+    }
 
-        return ResponseEntity.ok(repo.save(existing));
+    Long newPacientiId = extractPacientiId(payload);
+    if (newPacientiId != null) {
+        Pacient p = pacientRepo.findById(newPacientiId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pacient not found"));
+        existing.setPacient(p);
+    }
+
+    SemundjeKronike saved = repo.save(existing);
+    return ResponseEntity.ok(saved);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    if (!repo.existsById(id)) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Semundje not found");
+    }
+    repo.deleteById(id);
+    return ResponseEntity.noContent().build();
+}
+
+    @DeleteMapping("/pacienti/{pacientId}")
+    public ResponseEntity<Void> deleteByPacient(@PathVariable Long pacientId) {
+        List<SemundjeKronike> list = repo.findByPacient_PacientiId(pacientId);
+        repo.deleteAll(list);
+        return ResponseEntity.noContent().build();
     }
 }
