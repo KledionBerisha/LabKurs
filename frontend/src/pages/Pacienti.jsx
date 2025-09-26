@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import PageTitle from '../components/Typography/PageTitle';
 import { TableContainer } from '@windmill/react-ui';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
 function Pacienti(props) {
   const location = useLocation();
+  const history = useHistory();
   const patient = (location.state && location.state.patient) || null;
 
   const [details, setDetails] = useState({
@@ -33,7 +34,7 @@ function Pacienti(props) {
       ]).then(([alergji, kartelaVaksinimit, nderhyrje, semundjeKronike, medikamente, analizaEkzaminime]) => {
         setDetails({ alergji, kartelaVaksinimit, nderhyrje, semundjeKronike, medikamente, analizaEkzaminime });
       }).catch(() => {
-        // ignore fetch errors for now
+        // ignore fetch errors
       });
     }
   }, [patient]);
@@ -44,6 +45,13 @@ function Pacienti(props) {
         <PageTitle>Pacienti</PageTitle>
         <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg shadow-md">
           <p>Asnjë pacient i zgjedhur.</p>
+        </div>
+        <div className="flex flex-col h-full mt-2">
+            <div className="mt-auto mb-4 flex justify-start pl-4">
+              <button onClick={() => history.goBack()} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center">
+                Kthehu
+              </button>
+            </div>
         </div>
       </>
     );
@@ -134,6 +142,17 @@ function Pacienti(props) {
           </table>
         </div>
       </TableContainer>
+      {/* Vizita e fundit button - only shown when a patient is displayed */}
+      <div className="flex flex-col h-full mt-2">
+        <div className="mt-auto mb-4 flex justify-start pl-4">
+          <button
+            onClick={() => history.push('/app/VizitaFundit', { patient })}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center"
+          >
+            Vizita e fundit
+          </button>
+        </div>
+      </div>
     </>
   );
 }

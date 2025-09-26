@@ -134,7 +134,7 @@ function DoctorPage() {
                   <span className="text-sm">{user.ditelindja ? new Date(user.ditelindja).toLocaleDateString() : ''}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm">{user.vendbanimiID}</span>
+                  <span className="text-sm">{user.vendbanimiEmri || user.vendbanimiID}</span>
                 </TableCell>
               </TableRow>
             ))}

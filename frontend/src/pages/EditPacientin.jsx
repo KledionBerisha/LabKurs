@@ -284,6 +284,13 @@ function EditPacientin() {
         <div className="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg shadow-md">
           <p>Asnjë pacient i zgjedhur.</p>
         </div>
+        <div className="flex flex-col h-full mt-2">
+            <div className="mt-auto mb-4 flex justify-start pl-4">
+              <button onClick={() => history.goBack()} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center">
+                Kthehu
+              </button>
+            </div>
+        </div>
       </>
     );
   }
