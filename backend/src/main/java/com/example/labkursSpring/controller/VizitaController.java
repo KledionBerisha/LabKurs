@@ -4,23 +4,25 @@ import com.example.labkursSpring.model.Doktori;
 import com.example.labkursSpring.model.Pacient;
 import com.example.labkursSpring.model.Vizita;
 import com.example.labkursSpring.repository.DoktoriRepo;
-import com.example.labkursSpring.repository.PacientiRepo;
+import com.example.labkursSpring.repository.PacientRepo;
 import com.example.labkursSpring.repository.VizitaRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api")
 public class VizitaController {
 
     private final VizitaRepo vizitaRepo;
-    private final PacientiRepo pacientRepo;
+    private final PacientRepo pacientRepo;
     private final DoktoriRepo doktoriRepo;
 
-    public VizitaController(VizitaRepo vizitaRepo, PacientiRepo pacientRepo, DoktoriRepo doktoriRepo) {
+    public VizitaController(VizitaRepo vizitaRepo, PacientRepo pacientRepo, DoktoriRepo doktoriRepo) {
         this.vizitaRepo = vizitaRepo;
         this.pacientRepo = pacientRepo;
         this.doktoriRepo = doktoriRepo;
@@ -28,13 +30,13 @@ public class VizitaController {
 
     @GetMapping("/vizitat/pacienti/{id}")
     public ResponseEntity<List<Vizita>> getAllByPacient(@PathVariable Long id) {
-        List<Vizita> list = vizitaRepo.findByPacientiPacientiIDOrderByDataDesc(id);
+        List<Vizita> list = vizitaRepo.findByPacientiPacientiIdOrderByDataDesc(id);
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/vizita/fundit/pacienti/{id}")
     public ResponseEntity<Vizita> getLastByPacient(@PathVariable Long id) {
-        return vizitaRepo.findFirstByPacientiPacientiIDOrderByDataDesc(id)
+        return vizitaRepo.findFirstByPacientiPacientiIdOrderByDataDesc(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

@@ -3,7 +3,16 @@ package com.example.labkursSpring.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,24 +26,26 @@ public class Vizita {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PacientiID")
-    private Pacienti pacienti;
+    private Pacient pacienti; // use Pacient (your model) not Pacienti
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DoktoriID")
     private Doktori doktori;
 
-    @Column(name = "data")
+    @Column(name = "Data")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime data;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "Pershkrimi", length = 1000)
     private String pershkrimi;
+
+    public Vizita() {}
 
     public Long getVizitatID() { return vizitatID; }
     public void setVizitatID(Long vizitatID) { this.vizitatID = vizitatID; }
 
-    public Pacienti getPacienti() { return pacienti; }
-    public void setPacienti(Pacienti pacienti) { this.pacienti = pacienti; }
+    public Pacient getPacienti() { return pacienti; }
+    public void setPacienti(Pacient pacienti) { this.pacienti = pacienti; }
 
     public Doktori getDoktori() { return doktori; }
     public void setDoktori(Doktori doktori) { this.doktori = doktori; }

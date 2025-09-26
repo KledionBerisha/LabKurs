@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PageTitle from '../components/Typography/PageTitle';
 import { TableContainer } from '@windmill/react-ui';
 import { useLocation, useHistory } from 'react-router-dom';
+import { getAuthHeaders } from '../services/auth';
 
 function VizitaShto() {
   const location = useLocation();
@@ -17,10 +18,8 @@ function VizitaShto() {
 
   useEffect(() => {
     // load doctors for select
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    const token = user?.accessToken || user?.token || user?.access_token;
-    fetch('http://localhost:8080/api/doktori', { headers: { Authorization: token ? `Bearer ${token}` : '' } })
-      .then(r => r.ok ? r.json() : Promise.reject())
+    fetch('http://localhost:8080/api/doktori', { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t || 'Failed to load doctors'); }))
       .then(setDoctors)
       .catch(() => setDoctors([]));
   }, []);
@@ -32,7 +31,7 @@ function VizitaShto() {
       setDataTime(dtLocal);
     }
     // default doctor if single
-    if (!doktorId && doctors.length === 1) setDoktorId(doctors[0].doktoriID || doctors[0].id || doctors[0].DoktoriID);
+    if (!doktorId && doctors.length === 1) setDoktorId(doctors[0].doktoriId || doctors[0].doktoriID || doctors[0].id || doctors[0].DoktoriID);
   }, [doctors]);
 
   const handleSubmit = (e) => {
@@ -40,27 +39,47 @@ function VizitaShto() {
     if (!patient) { setError('Pacienti nuk eshte i zgjedhur'); return; }
     setSaving(true);
     setError(null);
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
-    const token = user?.accessToken || user?.token || user?.access_token;
+    const headers = {...getAuthHeaders(), 'Content-Type': 'application/json' }
     const payload = {
-      pacientiId: patient.pacientiID || patient.PacientiID || patient.id || patient.pacientiId || patient.numriPersonal,
+      pacientiId: patient.pacientiId || patient.pacientiID || patient.id || patient.pacientId || patient.numriPersonal,
       doktoriId: doktorId,
-      data: dataTime ? new Date(dataTime).toISOString() : null,
+      // send LocalDateTime-like string without trailing 'Z' so Jackson can parse to LocalDateTime
+      data: dataTime ? (dataTime.length === 16 ? `${dataTime}:00` : dataTime) : null, 
       pershkrimi: pershkrimi
     };
     fetch('http://localhost:8080/api/vizitat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
+      headers,
       body: JSON.stringify(payload)
     })
-      .then(r => {
-        if (!r.ok) return r.json().then(j => Promise.reject(j));
-        return r.json();
+      .then(async (r) => {
+        if (r.ok) return r.json();
+        // try parse JSON error, otherwise get text
+        const text = await r.text();
+        try { const j = JSON.parse(text); throw new Error(j?.message || JSON.stringify(j) || text); }
+        catch (e) { throw new Error(text || 'Gabim gjatë ruajtjes'); }
       })
-      .then(() => history.push('/vizita-e-fundit', { patient }))
-      .catch(err => {
-        setError(err?.message || 'Gabim gjatë ruajtjes');
+      .then(async () => {
+        // after creating, try to fetch the latest visit for this patient and pass it to the next page
+        try {
+          const id = payload.pacientiId;
+          const headers = getAuthHeaders();
+          let last = null;
+          const r2 = await fetch(`http://localhost:8080/api/vizita/fundit/pacienti/${id}`, { headers });
+          if (r2.ok) last = await r2.json();
+          else {
+            const r3 = await fetch(`http://localhost:8080/api/vizitat/pacienti/${id}`, { headers });
+            if (r3.ok) {
+              const arr = await r3.json();
+              last = Array.isArray(arr) ? arr[0] : arr;
+            }
+          }
+          history.push('/app/VizitaFundit', { patient, lastVizita: last });
+        } catch (e) {
+          history.push('/app/VizitaFundit', { patient });
+        }
       })
+      .catch(err => setError(err?.message || String(err) || 'Gabim gjatë ruajtjes'))
       .finally(() => setSaving(false));
   };
 
@@ -109,10 +128,10 @@ function VizitaShto() {
                 className="mt-1 block w-full border border-gray-300 rounded p-2 bg-white dark:bg-gray-800"
                 required
               >
-                <option value="">Zgjidh doktorrin</option>
+                <option value="">Zgjidh doktorin</option>
                 {doctors.map(d => (
-                  <option key={d.doktoriID || d.id || d.DoktoriID} value={d.doktoriID || d.id || d.DoktoriID}>
-                    {d.EmriMbiemri || d.emriMbiemri || d.username || (d.Username ? d.Username : `Dr ${d.doktoriID || d.id}`)}
+                  <option key={d.doktoriId || d.doktoriID || d.id || d.DoktoriID} value={d.doktoriId || d.doktoriID || d.id || d.DoktoriID}>
+                    {d.emriMbiemri || d.EmriMbiemri || d.username || d.Username || `Dr ${d.doktoriId || d.id}`}
                   </option>
                 ))}
               </select>

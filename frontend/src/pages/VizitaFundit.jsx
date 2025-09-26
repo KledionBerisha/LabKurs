@@ -7,12 +7,16 @@ function VizitaFundit() {
   const location = useLocation();
   const history = useHistory();
   const patient = (location.state && location.state.patient) || null;
+  const initialVizita = (location.state && location.state.lastVizita) || null;
 
   const [vizita, setVizita] = useState(null);
   const [loading, setLoading] = useState(false);
+  useEffect(() => { if (initialVizita) setVizita(initialVizita); }, [initialVizita]);
 
   useEffect(() => {
     if (!patient) return;
+    // if we already have an initial vizita passed from previous page, skip fetch
+    if (initialVizita) return;
     const id = patient.pacientiId || patient.pacientiID || patient.id || patient.pacientId || patient.numriPersonal;
     if (!id) return;
 
@@ -114,13 +118,13 @@ function VizitaFundit() {
           <button onClick={() => history.goBack()} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center">
             Kthehu
           </button>
-          <button onClick={() => history.push('/app/VizitaShto'), { pacient }} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center">
+          <button onClick={() => history.push('/app/VizitaShto', { patient })} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md text-center">
             Shto Vizite
           </button>
         </div>
       </div>
     </>
-  );s
+  );
 }
 
 export default VizitaFundit;

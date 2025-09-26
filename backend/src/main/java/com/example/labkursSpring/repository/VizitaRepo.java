@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VizitaRepo extends JpaRepository<Vizita, Long> {
-    List<Vizita> findByPacientiPacientiIDOrderByDataDesc(Long pacientiID);
-    Optional<Vizita> findFirstByPacientiPacientiIDOrderByDataDesc(Long pacientiID);
+    List<Vizita> findByPacientiPacientiIdOrderByDataDesc(Long pacientiId);
+    Optional<Vizita> findFirstByPacientiPacientiIdOrderByDataDesc(Long pacientiId);
 }
