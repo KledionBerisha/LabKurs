@@ -39,6 +39,7 @@ public class SecurityConfigure {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/vizita-fundit/pacienti/*").authenticated()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception

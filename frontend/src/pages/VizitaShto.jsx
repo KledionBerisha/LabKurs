@@ -90,11 +90,19 @@ function VizitaShto() {
         throw new Error(msg || 'Failed to save vizita');
       }
 
-      const headers2 = { ...getAuthHeaders() };
+      const rLast = await fetch(`http://localhost:8080/api/vizita-fundit/pacienti/${pacientiId}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
       let last = null;
-      const rLast = await fetchWithAuth(`http://localhost:8080/api/vizitat/pacienti/${pacientiId}/last`, { method: 'GET' });
       if (rLast.ok) {
-        last = await rLast.json();
+        const v = await rLast.json();
+        last = {
+          VizitatID: v.vizitatID || v.VizitatID,
+          Data: v.data || v.Data,
+          Pershkrimi: v.pershkrimi || v.Pershkrimi,
+          DoktorEmriMbiemri: v.doktorEmriMbiemri || v.DoktorEmriMbiemri
+        };
       }
 
       const normalize = (v) => {

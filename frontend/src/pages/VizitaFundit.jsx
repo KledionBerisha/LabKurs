@@ -15,7 +15,6 @@ function VizitaFundit() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // If the page was opened with a pre-fetched/normalized vizita, use it immediately
   useEffect(() => {
     if (initialVizita) {
       setVizita(normalize(initialVizita));
@@ -25,10 +24,10 @@ function VizitaFundit() {
   const normalize = (obj) => {
     if (!obj) return null;
     return {
-      id: obj.vizitatID || obj.VizitatID || obj.id || null,
-      data: obj.data || obj.Data || null,
-      pershkrimi: obj.pershkrimi || obj.Pershkrimi || obj.description || '',
-      doktori: extractDoctorName(obj),
+      id: obj.vizitatID || obj.VizitatID || obj.id,
+      data: obj.data || obj.Data, // expect yyyy-MM-dd
+      pershkrimi: obj.pershkrimi || obj.Pershkrimi || '',
+      doktori: obj.doktorEmriMbiemri || obj.DoktorEmriMbiemri || extractDoctorName(obj)
     };
   };
 
@@ -63,8 +62,7 @@ function VizitaFundit() {
           setLoading(false);
           return;
         }
-        const headers = getAuthHeaders();
-        const res = await fetchWithAuth(`http://localhost:8080/api/vizitat/pacienti/${pacientiId}/last`, { method: 'GET' });
+        const res = await fetchWithAuth(`http://localhost:8080/api/vizita-fundit/pacienti/${pacientiId}`, { method: 'GET' });
         if (res.status === 401) {
           setError('Sesioni ka skaduar. Hyni përsëri.');
           setLoading(false);
@@ -90,9 +88,13 @@ function VizitaFundit() {
 
   const formatDate = (d) => {
     if (!d) return '';
+    // If backend already sends yyyy-MM-dd just return
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+    // Try to parse fallback
+    const parsed = new Date(d);
+    if (!isNaN(parsed)) return parsed.toISOString().slice(0,10);
     return d;
   };
-
   const formatDoctor = (v) => {
     if (!v) return '';
     if (v.DoktorEmriMbiemri) return v.DoktorEmriMbiemri;
