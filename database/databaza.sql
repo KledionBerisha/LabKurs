@@ -12,7 +12,6 @@ create table Doktori (
     Username varchar(255),
     Password varchar(255),
     UserID int,
-    EmriMbiemri varchar(255),
     Foreign key(UserID) references Users(UserID)
 );
 
@@ -20,8 +19,7 @@ create table Infermieri (
 	InfermieriID int auto_increment Primary key,
     Username varchar(255),
     Password Varchar(255),
-    UserID int,
-    EmriMbiemri varchar(255), 
+    UserID int, 
     foreign key(UserID) references Users(UserID)
 );
 
@@ -105,6 +103,7 @@ SELECT
     v.PacientiID,
     p.EmriMbiemri AS PacientEmriMbiemri,
     v.DoktoriID,
+    -- Convert username to "Firstname Lastname"
     CONCAT(
         UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', 1), 1)),
         LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', 1), 2)),
@@ -122,3 +121,64 @@ WHERE v.Data = (
     FROM Vizitat v2
     WHERE v2.PacientiID = v.PacientiID
 );
+
+-- Add EmriMbiemri to Doktori
+ALTER TABLE Doktori
+ADD COLUMN EmriMbiemri VARCHAR(255);
+
+-- Add EmriMbiemri to Infermieri
+ALTER TABLE Infermieri
+ADD COLUMN EmriMbiemri VARCHAR(255);
+
+select *
+from pacienti
+
+select *
+From vizitat
+
+select *
+from doktori
+
+select * from infermieri
+
+select * from users
+
+select *
+from Nderhyrje
+select *
+from Alergjia
+select *
+from KartelaVaksinimit
+select *
+from SemundjeKronike
+select * 
+from Medikamente
+select *
+from AnkesaAnaliza
+describe Alergjia
+
+
+SELECT * FROM alergjia WHERE PacientiID = 11;
+
+ALTER TABLE alergjia
+DROP FOREIGN KEY PacientiID,
+ADD CONSTRAINT PacientiID
+  FOREIGN KEY (PacientiID) REFERENCES Pacienti(PacientiID)
+  ON DELETE CASCADE;
+
+
+SHOW CREATE TABLE Alergjia;
+SHOW CREATE TABLE Nderhyrje;
+SHOW CREATE TABLE KartelaVaksinimit;
+SHOW CREATE TABLE SemundjeKronike;
+SHOW CREATE TABLE Medikamente;
+SHOW CREATE TABLE AnkesaAnaliza;
+SHOW CREATE TABLE Vizitat;
+
+ALTER TABLE vizitat
+DROP FOREIGN KEY vizitat_ibfk_1;
+
+ALTER TABLE vizitat
+ADD CONSTRAINT vizitat_ibfk_1
+  FOREIGN KEY (PacientiID) REFERENCES pacienti(PacientiID)
+  ON DELETE CASCADE;

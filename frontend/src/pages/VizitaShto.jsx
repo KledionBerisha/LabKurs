@@ -17,11 +17,18 @@ function VizitaShto() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // load doctors for select
-    fetch('http://localhost:8080/api/doktori', { headers: getAuthHeaders() })
-      .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t || 'Failed to load doctors'); }))
-      .then(setDoctors)
-      .catch(() => setDoctors([]));
+    const fetchDoctors = async () => {
+      try {
+        const headers = getAuthHeaders();
+        const res = await fetch('http://localhost:8080/api/doktori', { headers });
+        if (!res.ok) throw new Error('Failed to load doctors');
+        const data = await res.json();
+        setDoctors(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchDoctors();
   }, []);
 
   useEffect(() => {
@@ -34,53 +41,112 @@ function VizitaShto() {
     if (!doktorId && doctors.length === 1) setDoktorId(doctors[0].doktoriId || doctors[0].doktoriID || doctors[0].id || doctors[0].DoktoriID);
   }, [doctors]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!patient) { setError('Pacienti nuk eshte i zgjedhur'); return; }
+    if (!patient) return;
     setSaving(true);
     setError(null);
-    const headers = {...getAuthHeaders(), 'Content-Type': 'application/json' }
+
+    // build payload - be permissive about patient id shape
+    const pacientiId = patient.pacientiId || patient.PacientiID || patient.id || patient.pacientiId || null;
     const payload = {
-      pacientiId: patient.pacientiId || patient.pacientiID || patient.id || patient.pacientId || patient.numriPersonal,
-      doktoriId: doktorId,
-      // send LocalDateTime-like string without trailing 'Z' so Jackson can parse to LocalDateTime
-      data: dataTime ? (dataTime.length === 16 ? `${dataTime}:00` : dataTime) : null, 
-      pershkrimi: pershkrimi
+      pacientiId,
+      doktoriId: doktorId || null,
+      // backend expects LocalDateTime (yyyy-MM-dd'T'HH:mm:ss') — send without timezone.
+      data: (function toLocalDateTime(input) {
+        if (!input) return new Date().toISOString().slice(0,19); // fallback "YYYY-MM-DDTHH:mm:ss"
+        // datetime-local input is "YYYY-MM-DDTHH:mm" or "YYYY-MM-DDTHH:mm:ss"
+        if (input.length === 16) return `${input}:00`;
+        // if input already includes seconds, strip timezone/Z and milliseconds if present
+        return String(input).replace(/Z$/,'').split('.')[0];
+      })(dataTime),
+      pershkrimi: pershkrimi || ''
     };
-    fetch('http://localhost:8080/api/vizitat', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
-    })
-      .then(async (r) => {
-        if (r.ok) return r.json();
-        // try parse JSON error, otherwise get text
-        const text = await r.text();
-        try { const j = JSON.parse(text); throw new Error(j?.message || JSON.stringify(j) || text); }
-        catch (e) { throw new Error(text || 'Gabim gjatë ruajtjes'); }
-      })
-      .then(async () => {
-        // after creating, try to fetch the latest visit for this patient and pass it to the next page
+
+    try {
+      const headers = { ...getAuthHeaders() };
+      const res = await fetch('http://localhost:8080/api/vizitat', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || 'Failed to save vizita');
+      }
+
+      try {
+        let last = null;
+
+        // try use POST response body
         try {
-          const id = payload.pacientiId;
-          const headers = getAuthHeaders();
-          let last = null;
-          const r2 = await fetch(`http://localhost:8080/api/vizita/fundit/pacienti/${id}`, { headers });
-          if (r2.ok) last = await r2.json();
-          else {
-            const r3 = await fetch(`http://localhost:8080/api/vizitat/pacienti/${id}`, { headers });
+          const created = await res.clone().json().catch(() => null);
+          if (created && (created.vizitatID || created.VizitatID || created.id)) {
+            last = created;
+          }
+        } catch (e) {
+          last = null;
+        }
+
+        // fallback: fetch last visit with fresh headers
+        if (!last) {
+          const headers2 = { ...getAuthHeaders() };
+          const r2 = await fetch(`http://localhost:8080/api/vizita/fundit/pacienti/${pacientiId}`, { headers: headers2 });
+          if (r2.status === 401) {
+            // token invalid / missing — redirect to login or show error
+            setError('Sesioni juaj ka skaduar. Ju lutem hyni përsëri.');
+            history.push('/login');
+            return;
+          }
+          if (r2.ok) {
+            last = await r2.json();
+          } else {
+            // fallback: fetch list
+            const r3 = await fetch(`http://localhost:8080/api/vizitat/pacienti/${pacientiId}`, { headers: headers2 });
             if (r3.ok) {
               const arr = await r3.json();
-              last = Array.isArray(arr) ? arr[0] : arr;
+              last = Array.isArray(arr) && arr.length ? arr[0] : null;
             }
           }
-          history.push('/app/VizitaFundit', { patient, lastVizita: last });
-        } catch (e) {
-          history.push('/app/VizitaFundit', { patient });
         }
-      })
-      .catch(err => setError(err?.message || String(err) || 'Gabim gjatë ruajtjes'))
-      .finally(() => setSaving(false));
+
+        // normalize and navigate
+        const normalize = (v) => {
+          if (!v) return null;
+          const date = v.data || v.Data || v.DataVizite || v.dataVizite || null;
+          const desc = v.pershkrimi || v.Pershkrimi || v.description || '';
+          const idVal = v.vizitatID || v.VizitatID || v.id || null;
+          let doktorName = v.DoktorEmriMbiemri || v.doktoriEmriMbiemri || '';
+          if (!doktorName && v.doktori) {
+            doktorName = v.doktori.emriMbiemri || v.doktori.EmriMbiemri || '';
+            if (!doktorName && v.doktori.username) {
+              const parts = String(v.doktori.username).split('.');
+              doktorName = parts.map(p => p ? (p[0].toUpperCase() + p.slice(1).toLowerCase()) : '').join(' ');
+            }
+          }
+          return {
+            ...v,
+            Data: date,
+            Pershkrimi: desc,
+            VizitatID: idVal,
+            DoktorEmriMbiemri: doktorName
+          };
+        };
+
+        const normalizedLast = normalize(last);
+        history.push('/app/VizitaFundit', { patient, lastVizita: normalizedLast });
+      } catch (e) {
+        // if fetch-last fails, go to page with patient only
+        history.push('/app/VizitaFundit', { patient });
+      }
+      // CHANGED END
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Gabim gjate ruajtjes');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!patient) {
@@ -128,7 +194,6 @@ function VizitaShto() {
                 className="mt-1 block w-full border border-gray-300 rounded p-2 bg-white dark:bg-gray-800"
                 required
               >
-                <option value="">Zgjidh doktorin</option>
                 {doctors.map(d => (
                   <option key={d.doktoriId || d.doktoriID || d.id || d.DoktoriID} value={d.doktoriId || d.doktoriID || d.id || d.DoktoriID}>
                     {d.emriMbiemri || d.EmriMbiemri || d.username || d.Username || `Dr ${d.doktoriId || d.id}`}
