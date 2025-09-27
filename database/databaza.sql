@@ -1,184 +1,173 @@
+-- PatientDB - table structures only (no SET commands)
 
-create database PatientDB
+-- DROP TABLEs (safe order)
+DROP TABLE IF EXISTS `alergjia`;
+DROP TABLE IF EXISTS `ankesa_analiza`;
+DROP TABLE IF EXISTS `ankesaanaliza`;
+DROP TABLE IF EXISTS `doktori`;
+DROP TABLE IF EXISTS `infermieri`;
+DROP TABLE IF EXISTS `kartela_vaksinimit`;
+DROP TABLE IF EXISTS `kartelavaksinimit`;
+DROP TABLE IF EXISTS `medikamente`;
+DROP TABLE IF EXISTS `nderhyrje`;
+DROP TABLE IF EXISTS `semundje_kronike`;
+DROP TABLE IF EXISTS `semundjekronike`;
+DROP TABLE IF EXISTS `vizitat`;
+DROP TABLE IF EXISTS `pacienti`;
+DROP TABLE IF EXISTS `vendbanimi`;
+DROP TABLE IF EXISTS `users`;
 
-use PatientDB;
+-- Table: users
+CREATE TABLE `users` (
+  `UserID` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(255) DEFAULT NULL,
+  `password` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`UserID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Users (
-	UserID  int auto_increment primary key
-);
+-- Table: vendbanimi
+CREATE TABLE `vendbanimi` (
+  `VendbanimiID` INT NOT NULL AUTO_INCREMENT,
+  `emri` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`VendbanimiID`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Doktori (
-	DoktoriID int auto_increment primary key,
-    Username varchar(255),
-    Password varchar(255),
-    UserID int,
-    Foreign key(UserID) references Users(UserID)
-);
+-- Table: pacienti
+CREATE TABLE `pacienti` (
+  `PacientiID` INT NOT NULL AUTO_INCREMENT,
+  `NumriPersonal` BIGINT NOT NULL,
+  `EmriMbiemri` VARCHAR(255) DEFAULT NULL,
+  `Ditelindja` DATE DEFAULT NULL,
+  `VendbanimiID` INT DEFAULT NULL,
+  `gjinia` VARCHAR(255) NOT NULL,
+  `SigurimShendetsor` TINYINT(1) DEFAULT NULL,
+  `Alergji` TINYINT(1) DEFAULT NULL,
+  `Nderhyrje` TINYINT(1) DEFAULT NULL,
+  `SemundjeKronike` TINYINT(1) DEFAULT NULL,
+  `AlergjiDetaje` VARCHAR(2000) DEFAULT NULL,
+  `NderhyrjeDetaje` VARCHAR(2000) DEFAULT NULL,
+  `SemundjeKronikeDetaje` VARCHAR(2000) DEFAULT NULL,
+  PRIMARY KEY (`PacientiID`),
+  UNIQUE KEY `NumriPersonal` (`NumriPersonal`),
+  KEY `VendbanimiID` (`VendbanimiID`),
+  CONSTRAINT `pacienti_ibfk_1` FOREIGN KEY (`VendbanimiID`) REFERENCES `vendbanimi` (`VendbanimiID`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Infermieri (
-	InfermieriID int auto_increment Primary key,
-    Username varchar(255),
-    Password Varchar(255),
-    UserID int, 
-    foreign key(UserID) references Users(UserID)
-);
+-- Table: doktori
+CREATE TABLE `doktori` (
+  `DoktoriID` BIGINT NOT NULL AUTO_INCREMENT,
+  `Username` VARCHAR(255) DEFAULT NULL,
+  `Password` VARCHAR(255) DEFAULT NULL,
+  `UserID` INT DEFAULT NULL,
+  `EmriMbiemri` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`DoktoriID`),
+  KEY `UserID` (`UserID`),
+  CONSTRAINT `doktori_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table vendbanimi(
-	VendbanimiID int auto_increment primary key,
-    Emri varchar(50) not null
-);
+-- Table: infermieri
+CREATE TABLE `infermieri` (
+  `InfermieriID` BIGINT NOT NULL AUTO_INCREMENT,
+  `EmriMbiemri` VARCHAR(255) NOT NULL,
+  `Password` VARCHAR(255) NOT NULL,
+  `Username` VARCHAR(255) NOT NULL,
+  `UserID` BIGINT DEFAULT NULL,
+  PRIMARY KEY (`InfermieriID`),
+  UNIQUE KEY `UKd5miovtom9e1dhsqpwlc3keii` (`Username`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-insert into vendbanimi (Emri) values
-('Prishtinë'),('Prizren'),('Pejë'),('Mitrovicë'),('Gjakovë'),('Ferizaj'),('Gjilan'),('Rahovec');
+-- Table: vizitat
+CREATE TABLE `vizitat` (
+  `VizitatID` BIGINT NOT NULL AUTO_INCREMENT,
+  `Data` DATETIME DEFAULT NULL,
+  `Pershkrimi` VARCHAR(1000) DEFAULT NULL,
+  `DoktoriID` BIGINT NOT NULL,
+  `PacientiID` BIGINT NOT NULL,
+  PRIMARY KEY (`VizitatID`),
+  KEY `FKkneasv20j2jsej1iqks6syjcr` (`DoktoriID`),
+  CONSTRAINT `FKkneasv20j2jsej1iqks6syjcr` FOREIGN KEY (`DoktoriID`) REFERENCES `doktori` (`DoktoriID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Pacienti (
-	PacientiID int auto_increment primary key,
-    NumriPersonal BIGINT NOT NULL UNIQUE,
-    EmriMbiemri varchar(255),
-    Ditelindja Date,
-    VendbanimiID int,
-    foreign key (VendbanimiID) references vendbanimi(VendbanimiID),
-    Gjinia Varchar(10),
-    SigurimShendetsor Boolean,
-    Alergji boolean,
-    Nderhyrje boolean,
-    SemundjeKronike boolean
-);
+-- Table: kartelavaksinimit
+CREATE TABLE `kartelavaksinimit` (
+  `KartelaVaksinimitID` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT DEFAULT NULL,
+  `Pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`KartelaVaksinimitID`),
+  KEY `kartelavaksinimit_ibfk_1` (`PacientiID`),
+  CONSTRAINT `kartelavaksinimit_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table KartelaVaksinimit(
-	KartelaVaksinimitID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: kartela_vaksinimit (legacy)
+CREATE TABLE `kartela_vaksinimit` (
+  `kartela_vaksinimitid` BIGINT NOT NULL AUTO_INCREMENT,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  `pacientiid` BIGINT NOT NULL,
+  PRIMARY KEY (`kartela_vaksinimitid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Alergjia(
-	AlergjiaID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: nderhyrje
+CREATE TABLE `nderhyrje` (
+  `nderhyrjeid` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT DEFAULT NULL,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`nderhyrjeid`),
+  KEY `nderhyrje_ibfk_1` (`PacientiID`),
+  CONSTRAINT `nderhyrje_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Nderhyrje(
-	NderhyrjeID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: alergjia
+CREATE TABLE `alergjia` (
+  `alergjiaid` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT NOT NULL,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`alergjiaid`),
+  KEY `alergjia_ibfk_1` (`PacientiID`),
+  CONSTRAINT `alergjia_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table SemundjeKronike(
-	SemundjeKronikeID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: medikamente
+CREATE TABLE `medikamente` (
+  `medikamenteid` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT DEFAULT NULL,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`medikamenteid`),
+  KEY `medikamente_ibfk_1` (`PacientiID`),
+  CONSTRAINT `medikamente_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Medikamente(
-	MedikamenteID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: semundjekronike
+CREATE TABLE `semundjekronike` (
+  `SemundjeKronikeID` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT DEFAULT NULL,
+  `Pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`SemundjeKronikeID`),
+  KEY `semundjekronike_ibfk_1` (`PacientiID`),
+  CONSTRAINT `semundjekronike_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table AnkesaAnaliza(
-	AnkesaAnalizaID int auto_increment primary key,
-    PacientiID int,
-    Pershkrimi text,
-    Foreign Key (PacientiID) references Pacienti (PacientiID)
-);
+-- Table: semundje_kronike (legacy)
+CREATE TABLE `semundje_kronike` (
+  `semundje_kronikeid` BIGINT NOT NULL AUTO_INCREMENT,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  `pacientiid` BIGINT NOT NULL,
+  PRIMARY KEY (`semundje_kronikeid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create table Vizitat (
-	VizitatID int auto_increment primary key,
-    PacientiID int,
-    DoktoriID int,
-    Data datetime,
-    Pershkrimi Text,
-    foreign key (PacientiID) references Pacienti(PacientiID),
-    foreign key (DoktoriID) references Doktori(DoktoriID)
-);
+-- Table: ankesaanaliza
+CREATE TABLE `ankesaanaliza` (
+  `AnkesaAnalizaID` BIGINT NOT NULL AUTO_INCREMENT,
+  `PacientiID` INT DEFAULT NULL,
+  `Pershkrimi` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`AnkesaAnalizaID`),
+  KEY `ankesaanaliza_ibfk_1` (`PacientiID`),
+  CONSTRAINT `ankesaanaliza_ibfk_1` FOREIGN KEY (`PacientiID`) REFERENCES `pacienti` (`PacientiID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE OR REPLACE VIEW VizitaFundit AS
-SELECT
-    v.VizitatID,
-    v.PacientiID,
-    p.EmriMbiemri AS PacientEmriMbiemri,
-    v.DoktoriID,
-    -- Convert username to "Firstname Lastname"
-    CONCAT(
-        UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', 1), 1)),
-        LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', 1), 2)),
-        ' ',
-        UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', -1), 1)),
-        LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', -1), 2))
-    ) AS DoktorEmriMbiemri,
-    v.Data,
-    v.Pershkrimi
-FROM Vizitat v
-JOIN Pacienti p ON v.PacientiID = p.PacientiID
-JOIN Doktori d ON v.DoktoriID = d.DoktoriID
-WHERE v.Data = (
-    SELECT MAX(v2.Data)
-    FROM Vizitat v2
-    WHERE v2.PacientiID = v.PacientiID
-);
-
--- Add EmriMbiemri to Doktori
-ALTER TABLE Doktori
-ADD COLUMN EmriMbiemri VARCHAR(255);
-
--- Add EmriMbiemri to Infermieri
-ALTER TABLE Infermieri
-ADD COLUMN EmriMbiemri VARCHAR(255);
-
-select *
-from pacienti
-
-select *
-From vizitat
-
-select *
-from doktori
-
-select * from infermieri
-
-select * from users
-
-select *
-from Nderhyrje
-select *
-from Alergjia
-select *
-from KartelaVaksinimit
-select *
-from SemundjeKronike
-select * 
-from Medikamente
-select *
-from AnkesaAnaliza
-describe Alergjia
-
-
-SELECT * FROM alergjia WHERE PacientiID = 11;
-
-ALTER TABLE alergjia
-DROP FOREIGN KEY PacientiID,
-ADD CONSTRAINT PacientiID
-  FOREIGN KEY (PacientiID) REFERENCES Pacienti(PacientiID)
-  ON DELETE CASCADE;
-
-
-SHOW CREATE TABLE Alergjia;
-SHOW CREATE TABLE Nderhyrje;
-SHOW CREATE TABLE KartelaVaksinimit;
-SHOW CREATE TABLE SemundjeKronike;
-SHOW CREATE TABLE Medikamente;
-SHOW CREATE TABLE AnkesaAnaliza;
-SHOW CREATE TABLE Vizitat;
-
-ALTER TABLE vizitat
-DROP FOREIGN KEY vizitat_ibfk_1;
-
-ALTER TABLE vizitat
-ADD CONSTRAINT vizitat_ibfk_1
-  FOREIGN KEY (PacientiID) REFERENCES pacienti(PacientiID)
-  ON DELETE CASCADE;
+-- Table: ankesa_analiza (legacy)
+CREATE TABLE `ankesa_analiza` (
+  `ankesa_analizaid` BIGINT NOT NULL AUTO_INCREMENT,
+  `pershkrimi` VARCHAR(255) NOT NULL,
+  `pacientiid` BIGINT NOT NULL,
+  PRIMARY KEY (`ankesa_analizaid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

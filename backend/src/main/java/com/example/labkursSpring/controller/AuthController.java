@@ -174,37 +174,51 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        //check if user with same email or username exists
-        if (userRepo.findByEmail(request.getEmail()).isPresent()){
-            return ResponseEntity.badRequest().body("Email already exists!");
+
+        if (request.getEmail()==null || request.getEmail().isBlank() ||
+            request.getPassword()==null || request.getPassword().isBlank() ||
+            request.getUsername()==null || request.getUsername().isBlank() ||
+            request.getRole()==null || request.getRole().isBlank()) {
+            return ResponseEntity.badRequest().body("Missing required fields");
         }
 
-        // create base user
+        String roleRaw = request.getRole().trim().toLowerCase();
+
+        if (userRepo.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        if (doktoriRepo.findByUsernameIgnoreCase(request.getUsername()).isPresent()
+            || infermieriRepo.findByUsernameIgnoreCase(request.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
 
         Users user = new Users();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(request.getPassword()); // TODO: encode
         userRepo.save(user);
 
-        // attach doctor or infermier depending on role
-        if("Doktor".equalsIgnoreCase(request.getRole())){
+        String fullName = ((request.getFirstName()==null?"":request.getFirstName()) + " " +
+                           (request.getLastName()==null?"":request.getLastName())).trim();
+
+        if (roleRaw.equals("doktor") || roleRaw.equals("doctor")) {
             Doktori d = new Doktori();
             d.setUsername(request.getUsername());
             d.setPassword(request.getPassword());
-            d.setEmriMbiemri(request.getFirstName() + " " + request.getLastName());
+            d.setEmriMbiemri(fullName);
             d.setUser(user);
             doktoriRepo.save(d);
-        } 
-        else if("Infermier".equalsIgnoreCase(request.getRole())){
+        } else if (roleRaw.equals("infermier") || roleRaw.equals("infermieri") || roleRaw.equals("nurse")) {
             Infermieri i = new Infermieri();
             i.setUsername(request.getUsername());
             i.setPassword(request.getPassword());
-            i.setEmriMbiemri(request.getFirstName() + " " + request.getLastName());
+            i.setEmriMbiemri(fullName);
             i.setUser(user);
             infermieriRepo.save(i);
+        } else {
+            return ResponseEntity.badRequest().body("Invalid role");
         }
 
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok("User registered");
     }
     
 }

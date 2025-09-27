@@ -10,7 +10,7 @@ const [form, setForm] = useState({
     lastName: "",
     email: "",
     password: "",
-    role: "doctor",
+    role: "",
     licenseNumber: "",
 });
 const [loading, setLoading] = useState(false);
@@ -23,27 +23,27 @@ function onChange(e) {
 }
 
 async function onSubmit(e) {
-    e.preventDefault();
-    setError(null);
-    setMessage(null);
+  e.preventDefault();
+  setError(null);
+  setMessage(null);
 
-    if (!form.username || !form.firstName || !form.lastName || !form.email || !form.password) {
-    setError("Please fill all required fields.");
+  if (!form.username || !form.firstName || !form.lastName || !form.email || !form.password || !form.role) {
+    setError("Please fill all required fields (including role).");
     return;
-    }
+  }
 
-    setLoading(true);
-    try {
+  setLoading(true);
+  try {
     if (auth && typeof auth.register === "function") {
-        await auth.register(form);
-        setMessage("User registered successfully. Redirecting...");
+      await auth.register(form);
+      setMessage("User registered successfully. Redirecting...");
     }
     setTimeout(() => history.push("/login"), 1500);
-    } catch (err) {
-    setError("Registration failed. " + (err?.message || ""));
-    } finally {
+  } catch (err) {
+    setError("Registration failed. " + (err?.response?.data || err?.message || ""));
+  } finally {
     setLoading(false);
-    }
+  }
 }
 
 return (
