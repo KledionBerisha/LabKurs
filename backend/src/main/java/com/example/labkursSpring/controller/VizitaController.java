@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -54,7 +54,7 @@ public class VizitaController {
         v.setPacienti(p);
         v.setDoktori(d);
         v.setPershkrimi(req.getPershkrimi());
-        v.setData(req.getData() != null ? req.getData() : LocalDateTime.now());
+        v.setData(req.getData() != null ? req.getData() : LocalDate.now());
 
         Vizita saved = vizitaRepo.save(v);
         return ResponseEntity.ok(saved);
@@ -65,10 +65,17 @@ public class VizitaController {
         return ResponseEntity.ok(doktoriRepo.findAll());
     }
 
+    @GetMapping("/vizitat/pacienti/{id}/last")
+    public ResponseEntity<Vizita> getLatestStable(@PathVariable Long id) {
+        return vizitaRepo.findLatestByPacienti(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
     public static class CreateVizitaRequest {
         private Long pacientiId;
         private Long doktoriId;
-        private LocalDateTime data;
+        private LocalDate data;
         private String pershkrimi;
 
         public Long getPacientiId() { return pacientiId; }
@@ -77,8 +84,8 @@ public class VizitaController {
         public Long getDoktoriId() { return doktoriId; }
         public void setDoktoriId(Long doktoriId) { this.doktoriId = doktoriId; }
 
-        public LocalDateTime getData() { return data; }
-        public void setData(LocalDateTime data) { this.data = data; }
+        public LocalDate getData() { return data; }
+        public void setData(LocalDate data) { this.data = data; }
 
         public String getPershkrimi() { return pershkrimi; }
         public void setPershkrimi(String pershkrimi) { this.pershkrimi = pershkrimi; }

@@ -52,6 +52,24 @@ class AuthService {
   logout() {
     localStorage.removeItem('user');
   }
+
+    async refresh() {
+    const stored = this.getCurrentUser();
+    if (!stored || !stored.refreshToken) return null;
+    const res = await axios.post(API_URL + 'refresh', { refreshToken: stored.refreshToken });
+    const data = res.data;
+    if (data && data.accessToken) {
+      const updated = {
+        ...stored,
+        accessToken: data.accessToken,
+        // keep same refreshToken (backend returns same one per your controller)
+      };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return updated.accessToken;
+    }
+    return null;
+  }
+  
 }
 
 const authServiceInstance = new AuthService();

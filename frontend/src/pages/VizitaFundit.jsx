@@ -3,6 +3,7 @@ import PageTitle from '../components/Typography/PageTitle';
 import { TableContainer } from '@windmill/react-ui';
 import { useLocation, useHistory } from 'react-router-dom';
 import { getAuthHeaders } from '../services/auth';
+import { fetchWithAuth } from '../services/auth';
 
 function VizitaFundit() {
   const location = useLocation();
@@ -17,74 +18,69 @@ function VizitaFundit() {
   // If the page was opened with a pre-fetched/normalized vizita, use it immediately
   useEffect(() => {
     if (initialVizita) {
-      setVizita(initialVizita);
+      setVizita(normalize(initialVizita));
     }
   }, [initialVizita]);
+
+  const normalize = (obj) => {
+    if (!obj) return null;
+    return {
+      id: obj.vizitatID || obj.VizitatID || obj.id || null,
+      data: obj.data || obj.Data || null,
+      pershkrimi: obj.pershkrimi || obj.Pershkrimi || obj.description || '',
+      doktori: extractDoctorName(obj),
+    };
+  };
+
+  const extractDoctorName = (v) => {
+    if (!v) return '';
+    if (v.DoktorEmriMbiemri) return v.DoktorEmriMbiemri;
+    if (v.doktoriEmriMbiemri) return v.doktoriEmriMbiemri;
+    if (v.doktori) {
+      const d = v.doktori;
+      if (d.emriMbiemri) return d.emriMbiemri;
+      if (d.EmriMbiemri) return d.EmriMbiemri;
+      if (d.username) {
+        return d.username
+          .split('.')
+          .map(p => p ? p[0].toUpperCase() + p.slice(1).toLowerCase() : '')
+          .join(' ');
+      }
+    }
+    return '';
+  };
 
   // If there's no initial vizita but we have a patient, fetch the last visit
   useEffect(() => {
     const fetchLast = async () => {
-      if (!patient) return;
-      if (initialVizita) return;
+      if (!patient || initialVizita) return;
       setLoading(true);
+      setError(null);
       try {
-        const pacientiId = patient.pacientiId || patient.PacientiID || patient.id || patient.pacientiId || null;
+        const pacientiId = patient.pacientiId || patient.PacientiID || patient.id || null;
+        if (!pacientiId) {
+          setError('Pacienti i pavlefshëm.');
+          setLoading(false);
+          return;
+        }
         const headers = getAuthHeaders();
-
-        const normalize = (obj) => {
-          if (!obj) return null;
-          const date = obj.data || obj.Data || obj.DataVizite || obj.dataVizite || null;
-          const desc = obj.pershkrimi || obj.Pershkrimi || obj.description || '';
-          const idVal = obj.vizitatID || obj.VizitatID || obj.id || null;
-          let doktorName = obj.DoktorEmriMbiemri || obj.doktoriEmriMbiemri || '';
-          if (!doktorName && obj.doktori) {
-            doktorName = obj.doktori.emriMbiemri || obj.doktori.EmriMbiemri || '';
-            if (!doktorName && obj.doktori.username) {
-              const parts = String(obj.doktori.username).split('.');
-              doktorName = parts.map(p => p ? (p[0].toUpperCase() + p.slice(1).toLowerCase()) : '').join(' ');
-            }
-          }
-          return {
-            ...obj,
-            Data: date,
-            Pershkrimi: desc,
-            VizitatID: idVal,
-            DoktorEmriMbiemri: doktorName
-          };
-        };
-
-        // Try "fundit" endpoint if backend provides one
-        let res = await fetch(`http://localhost:8080/api/vizita/fundit/pacienti/${pacientiId}`, { headers });
+        const res = await fetchWithAuth(`http://localhost:8080/api/vizitat/pacienti/${pacientiId}/last`, { method: 'GET' });
         if (res.status === 401) {
+          setError('Sesioni ka skaduar. Hyni përsëri.');
           setLoading(false);
-          setError('Autentikimi mungon ose tokeni ka skaduar. Ju lutem hyni përsëri.');
           return;
         }
         if (res.ok) {
-          const v = await res.json();
-          setVizita(normalize(v));
-          return;
+          const data = await res.json();
+          setVizita(normalize(data));
+        } else if (res.status === 404) {
+          setVizita(null);
+        } else {
+          setError('Nuk u mor vizita e fundit.');
         }
-
-        // Fallback: use the list endpoint that exists and pick the first (most recent)
-        res = await fetch(`http://localhost:8080/api/vizitat/pacienti/${pacientiId}`, { headers });
-        if (res.status === 401) {
-          setLoading(false);
-          setError('Autentikimi mungon ose tokeni ka skaduar. Ju lutem hyni përsëri.');
-          return;
-        }
-        if (res.ok) {
-          const arr = await res.json();
-          const v = Array.isArray(arr) && arr.length ? arr[0] : null;
-          setVizita(normalize(v));
-          return;
-        }
-
-        // nothing found
-        setVizita(null);
       } catch (e) {
         console.error(e);
-        setVizita(null);
+        setError('Gabim rrjeti.');
       } finally {
         setLoading(false);
       }
@@ -94,13 +90,7 @@ function VizitaFundit() {
 
   const formatDate = (d) => {
     if (!d) return '';
-    try {
-      const date = new Date(d);
-      if (isNaN(date.getTime())) return String(d);
-      return date.toLocaleString();
-    } catch {
-      return String(d);
-    }
+    return d;
   };
 
   const formatDoctor = (v) => {
@@ -177,10 +167,6 @@ function VizitaFundit() {
                   <tr className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <td className="w-1/3 border border-gray-200 dark:border-gray-700 p-2 font-medium bg-gray-50 dark:bg-gray-800">Përshkrimi</td>
                     <td className="border border-gray-200 dark:border-gray-700 p-2">{vizita.Pershkrimi || vizita.pershkrimi || vizita.description || 'Pa përshkrim.'}</td>
-                  </tr>
-                  <tr className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-800 dark:even:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                    <td className="w-1/3 border border-gray-200 dark:border-gray-700 p-2 font-medium bg-gray-50 dark:bg-gray-800">ID Vizite</td>
-                    <td className="border border-gray-200 dark:border-gray-700 p-2">{vizita.VizitatID || vizita.vizitatID || vizita.id || ''}</td>
                   </tr>
                 </tbody>
               </table>

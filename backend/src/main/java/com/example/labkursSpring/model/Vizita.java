@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "Vizitat")
@@ -33,8 +33,8 @@ public class Vizita {
     private Doktori doktori;
 
     @Column(name = "Data")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime data;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate data;
 
     @Column(name = "Pershkrimi", length = 1000)
     private String pershkrimi;
@@ -50,8 +50,8 @@ public class Vizita {
     public Doktori getDoktori() { return doktori; }
     public void setDoktori(Doktori doktori) { this.doktori = doktori; }
 
-    public LocalDateTime getData() { return data; }
-    public void setData(LocalDateTime data) { this.data = data; }
+    public LocalDate getData() { return data; }
+    public void setData(LocalDate data) { this.data = data; }
 
     public String getPershkrimi() { return pershkrimi; }
     public void setPershkrimi(String pershkrimi) { this.pershkrimi = pershkrimi; }

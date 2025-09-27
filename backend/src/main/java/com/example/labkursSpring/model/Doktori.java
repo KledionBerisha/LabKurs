@@ -1,10 +1,14 @@
-
 package com.example.labkursSpring.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+
 
 @Entity
 @Table(name = "doktori")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Doktori {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +26,7 @@ public class Doktori {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID")
+    @JsonIgnore
     private Users user;
 
     public Long getDoktoriId() { return doktoriId; }
