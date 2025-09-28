@@ -176,27 +176,27 @@ CREATE TABLE `ankesa_analiza` (
 DROP VIEW IF EXISTS VizitaFundit;
 CREATE OR REPLACE VIEW VizitaFundit AS
 SELECT VizitatID,
-       PacientiID,
-       EmriMbiemri AS PacientEmriMbiemri,
-       DoktoriID,
-       DoktorEmriMbiemri,
-       Data,
-       Pershkrimi
+    PacientiID,
+    EmriMbiemri AS PacientEmriMbiemri,
+    DoktoriID,
+    DoktorEmriMbiemri,
+    Data,
+    Pershkrimi
 FROM (
     SELECT v.VizitatID,
-           v.PacientiID,
-           p.EmriMbiemri,
-           v.DoktoriID,
-           CONCAT(
-             UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', 1), 1)),
-             LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', 1), 2)),
-             ' ',
-             UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', -1), 1)),
-             LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', -1), 2))
-           ) AS DoktorEmriMbiemri,
-           DATE(v.Data) AS Data,
-           v.Pershkrimi,
-           ROW_NUMBER() OVER (PARTITION BY v.PacientiID ORDER BY v.Data DESC, v.VizitatID DESC) AS rn
+      v.PacientiID,
+      p.EmriMbiemri,
+      v.DoktoriID,
+      CONCAT(
+        UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', 1), 1)),
+        LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', 1), 2)),
+        ' ',
+        UPPER(LEFT(SUBSTRING_INDEX(d.Username, '.', -1), 1)),
+        LOWER(SUBSTRING(SUBSTRING_INDEX(d.Username, '.', -1), 2))
+      ) AS DoktorEmriMbiemri,
+          DATE(v.Data) AS Data,
+          v.Pershkrimi,
+          ROW_NUMBER() OVER (PARTITION BY v.PacientiID ORDER BY v.Data DESC, v.VizitatID DESC) AS rn
     FROM Vizitat v
     JOIN Pacienti p ON v.PacientiID = p.PacientiID
     JOIN Doktori d ON v.DoktoriID = d.DoktoriID
