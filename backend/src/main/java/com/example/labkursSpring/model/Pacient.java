@@ -31,9 +31,9 @@ public class Pacient {
 
     @Column(name = "SigurimShendetsor", nullable = false)
     private Boolean sigurimShendetsor;
-     
-     @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
-     private List<Alergjia> alergjite;
+    
+    @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alergjia> alergjite;
 
     @OneToMany(mappedBy = "pacient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Nderhyrje> nderhyrjet;
@@ -59,8 +59,6 @@ public class Pacient {
     @Column(name = "SemundjeKronike")
     private Boolean semundjeKronike;
 
-     
-
     // Getters and Setters
     public Long getPacientiId() { 
         return pacientiId; 
@@ -77,42 +75,42 @@ public class Pacient {
 
 
     public String getEmriMbiemri() {
-         return emriMbiemri; 
+        return emriMbiemri; 
     }
     public void setEmriMbiemri(String emriMbiemri) {
-         this.emriMbiemri = emriMbiemri; 
+        this.emriMbiemri = emriMbiemri; 
     }
 
 
     public Date getDitelindja() {
-         return ditelindja; 
+        return ditelindja; 
     }
     public void setDitelindja(Date ditelindja) {
-         this.ditelindja = ditelindja; 
+        this.ditelindja = ditelindja; 
     }
 
 
     public Vendbanimi getVendbanimi() {
-         return vendbanimi; 
+        return vendbanimi; 
     }
     public void setVendbanimi(Vendbanimi id) {
-         this.vendbanimi = id; 
+        this.vendbanimi = id; 
     }
 
 
     public String getGjinia() {
-         return gjinia; 
+        return gjinia; 
     }
     public void setGjinia(String gjinia) {
-         this.gjinia = gjinia; 
+        this.gjinia = gjinia; 
     }
 
 
     public Boolean getSigurimShendetsor() {
-         return sigurimShendetsor; 
+        return sigurimShendetsor; 
     }
     public void setSigurimShendetsor(Boolean sigurimShendetsor) {
-         this.sigurimShendetsor = sigurimShendetsor; 
+        this.sigurimShendetsor = sigurimShendetsor; 
     }
 
     public List<Alergjia> getAlergjite() {
@@ -159,26 +157,26 @@ public class Pacient {
 
 
     public Boolean getAlergji() {
-         return alergji; 
+        return alergji; 
     }
     public void setAlergji(Boolean alergji) {
-         this.alergji = alergji; 
+        this.alergji = alergji; 
     }
 
 
     public Boolean getNderhyrje() {
-         return nderhyrje; 
+        return nderhyrje; 
     }
     public void setNderhyrje(Boolean nderhyrje) {
-         this.nderhyrje = nderhyrje; 
+        this.nderhyrje = nderhyrje; 
     }
 
 
     public Boolean getSemundjeKronike() {
-         return semundjeKronike; 
+        return semundjeKronike; 
     }
     public void setSemundjeKronike(Boolean semundjeKronike) {
-         this.semundjeKronike = semundjeKronike; 
+        this.semundjeKronike = semundjeKronike; 
     }
 
 }
