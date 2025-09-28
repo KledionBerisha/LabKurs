@@ -17,6 +17,7 @@ const Pacienti = lazy(()=>import('../pages/Pacienti'))
 const EditPacientin = lazy(() =>import('../pages/EditPacientin'))
 const VizitaFundit = lazy(() =>import('../pages/VizitaFundit'))
 const VizitaShto = lazy(() =>import('../pages/VizitaShto'))
+const PlanetsAndSatellites232470151 = lazy(() => import('../pages/PlanetsAndSatellites232470151'))
 /**
  * ⚠ These are internal routes!
  * They will be rendered inside the app, using the default `containers/Layout`.
@@ -91,6 +92,10 @@ const routes = [
   {
     path: '/VizitaShto',
     component: VizitaShto,
+  },
+  {
+    path: '/PlanetsAndSatellites232470151',
+    component: PlanetsAndSatellites232470151,
   }
 ]
 

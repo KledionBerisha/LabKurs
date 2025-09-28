@@ -202,3 +202,19 @@ FROM (
     JOIN Doktori d ON v.DoktoriID = d.DoktoriID
 ) t
 WHERE t.rn = 1;
+
+
+--extra
+CREATE table if not exists Planet232470151 (
+	planet232470151_id BIGINT auto_increment primary key,
+    name VARCHAR(255),
+    type VARCHAR(255),
+    is_deleted BOOLEAN DEFAULT FALSE
+);
+CREATE TABLE IF NOT EXISTS Satellite232470151 (
+	satellite232470151_id BIGINT auto_increment primary key,
+    name VARCHAR(255),
+    is_deleted BOOLEAN DEFAULT FALSE,
+    planet_id BIGINT,
+    CONSTRAINT fk_planet_232470151 FOREIGN KEY (planet_id) references Planet232470151(planet232470151_id)
+)

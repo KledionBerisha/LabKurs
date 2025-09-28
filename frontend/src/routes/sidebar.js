@@ -36,6 +36,11 @@ const routes = [
     icon: 'HomeIcon',
     name: 'VizitaFundit',
   },
+  {
+    path: '/app/PlanetsAndSatellites232470151',
+    icon: 'HomeIcon',
+    name: 'PlanetsAndSatellites232470151',
+  }
 ]
 
 export default routes
