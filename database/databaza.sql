@@ -232,3 +232,17 @@ CREATE TABLE IF NOT EXISTS Ligjerata (
     LecturerID BIGINT,
     CONSTRAINT fk_Ligjeruesi FOREIGN KEY (LecturerID) references Ligjeruesi(LecturerID)
 );
+
+-- extra team
+CREATE table if not exists Team (
+	TeamID BIGINT auto_increment primary key,
+    name VARCHAR(255)
+);
+CREATE TABLE IF NOT EXISTS Player (
+	PlayerID BIGINT auto_increment primary key,
+    Name VARCHAR(255),
+    BirthYear BIGINT,
+    TeamID bigint,
+    CONSTRAINT fk_Team FOREIGN KEY (TeamID) references Team(TeamID)
+);
+alter table Player add column Number bigint

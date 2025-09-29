@@ -19,6 +19,7 @@ const VizitaFundit = lazy(() =>import('../pages/VizitaFundit'))
 const VizitaShto = lazy(() =>import('../pages/VizitaShto'))
 const PlanetsAndSatellites232470151 = lazy(() => import('../pages/PlanetsAndSatellites232470151'))
 const LigjeruesDheLigjerata = lazy(() => import('../pages/LigjeruesDheLigjerata'))
+const TeamAndPlayer = lazy(() => import('../pages/TeamAndPlayer'))
 
 /**
  * ⚠ These are internal routes!
@@ -102,6 +103,10 @@ const routes = [
   {
     path: '/LigjeruesDheLigjerata',
     component: LigjeruesDheLigjerata,
+  },
+  {
+    path: '/TeamAndPlayer',
+    component: TeamAndPlayer,
   }
 ]
 

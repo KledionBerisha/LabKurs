@@ -45,6 +45,11 @@ const routes = [
     path: '/app/LigjeruesDheLigjerata',
     icon: 'HomeIcon',
     name: 'LigjeruesDheLigjerata',
+  },
+  {
+    path: '/app/TeamAndPlayer',
+    icon: 'HomeIcon',
+    name: 'TeamAndPlayer',
   }
 ]
 
