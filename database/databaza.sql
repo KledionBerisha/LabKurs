@@ -218,3 +218,17 @@ CREATE TABLE IF NOT EXISTS Satellite232470151 (
     planet_id BIGINT,
     CONSTRAINT fk_planet_232470151 FOREIGN KEY (planet_id) references Planet232470151(planet232470151_id)
 )
+
+--extra ligj
+CREATE table if not exists Ligjeruesi (
+	LecturerID BIGINT auto_increment primary key,
+    LecturerName VARCHAR(255),
+    Departament VARCHAR(255),
+    Email VARCHAR(255)
+);
+CREATE TABLE IF NOT EXISTS Ligjerata (
+	LectureID BIGINT auto_increment primary key,
+    LectureName VARCHAR(255),
+    LecturerID BIGINT,
+    CONSTRAINT fk_Ligjeruesi FOREIGN KEY (LecturerID) references Ligjeruesi(LecturerID)
+);
