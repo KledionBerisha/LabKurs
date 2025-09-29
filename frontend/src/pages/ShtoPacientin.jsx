@@ -239,6 +239,7 @@ function Dashboard() {
               <option value="6">Ferizaj</option>
               <option value="7">Gjilan</option>
               <option value="8">Rahovec</option>
+              <option value="9">Caparc</option>
             </select>
         </Label>
 
