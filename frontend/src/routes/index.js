@@ -18,6 +18,8 @@ const EditPacientin = lazy(() =>import('../pages/EditPacientin'))
 const VizitaFundit = lazy(() =>import('../pages/VizitaFundit'))
 const VizitaShto = lazy(() =>import('../pages/VizitaShto'))
 const PlanetsAndSatellites232470151 = lazy(() => import('../pages/PlanetsAndSatellites232470151'))
+const LigjeruesDheLigjerata = lazy(() => import('../pages/LigjeruesDheLigjerata'))
+
 /**
  * ⚠ These are internal routes!
  * They will be rendered inside the app, using the default `containers/Layout`.
@@ -96,6 +98,10 @@ const routes = [
   {
     path: '/PlanetsAndSatellites232470151',
     component: PlanetsAndSatellites232470151,
+  },
+  {
+    path: '/LigjeruesDheLigjerata',
+    component: LigjeruesDheLigjerata,
   }
 ]
 
