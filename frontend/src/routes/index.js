@@ -99,22 +99,22 @@ const routes = [
     path: '/VizitaShto',
     component: VizitaShto,
   },
-  {
-    path: '/PlanetsAndSatellites232470151',
-    component: PlanetsAndSatellites232470151,
-  },
-  {
-    path: '/LigjeruesDheLigjerata',
-    component: LigjeruesDheLigjerata,
-  },
-  {
-    path: '/TeamAndPlayer',
-    component: TeamAndPlayer,
-  },
-  {
-    path: '/FabrikaAndPunetori',
-    component: FabrikaAndPunetori,
-  },
+  // {
+  //   path: '/PlanetsAndSatellites232470151',
+  //   component: PlanetsAndSatellites232470151,
+  // },
+  // {
+  //   path: '/LigjeruesDheLigjerata',
+  //   component: LigjeruesDheLigjerata,
+  // },
+  // {
+  //   path: '/TeamAndPlayer',
+  //   component: TeamAndPlayer,
+  // },
+  // {
+  //   path: '/FabrikaAndPunetori',
+  //   component: FabrikaAndPunetori,
+  // },
   {
     path: '/Vizitat',
     component: Vizitat,
