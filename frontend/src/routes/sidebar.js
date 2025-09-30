@@ -35,6 +35,11 @@ const routes = [
     path: '/app/VizitaFundit',
     icon: 'HomeIcon',
     name: 'VizitaFundit',
+  },
+  {
+    path: '/app/FabrikaAndPunetori',
+    icon: 'HomeIcon',
+    name: 'FabrikaAndPunetori',
   }
   // ,
   // {
