@@ -214,7 +214,7 @@ function Dashboard() {
 
         <Label className="mt-4">
           <span>Numri personal</span>
-          <Input type="number" className="mt-1" placeholder="xxx..." name="numriPersonal" value={formData.numriPersonal} onChange={handleChange} required />
+          <Input type="number" className="mt-1" placeholder="Numri Personal" name="numriPersonal" value={formData.numriPersonal} onChange={handleChange} required />
         </Label>
 
         <Label className="mt-4">
