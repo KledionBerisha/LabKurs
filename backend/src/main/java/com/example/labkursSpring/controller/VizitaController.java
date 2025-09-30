@@ -1,21 +1,22 @@
 package com.example.labkursSpring.controller;
 
-import com.example.labkursSpring.model.Doktori;
-import com.example.labkursSpring.model.Pacient;
+import com.example.labkursSpring.dto.VizitaListDTO;
+import com.example.labkursSpring.dto.CreateVizitaRequest;
 import com.example.labkursSpring.model.Vizita;
-import com.example.labkursSpring.repository.DoktoriRepo;
-import com.example.labkursSpring.repository.PacientRepo;
+import com.example.labkursSpring.model.Pacient;
+import com.example.labkursSpring.model.Doktori;
 import com.example.labkursSpring.repository.VizitaRepo;
+import com.example.labkursSpring.repository.PacientRepo;
+import com.example.labkursSpring.repository.DoktoriRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/vizita")
+@CrossOrigin(origins = "http://localhost:3000")
 public class VizitaController {
 
     private final VizitaRepo vizitaRepo;
@@ -28,66 +29,65 @@ public class VizitaController {
         this.doktoriRepo = doktoriRepo;
     }
 
-    @GetMapping("/vizitat/pacienti/{id}")
-    public ResponseEntity<List<Vizita>> getAllByPacient(@PathVariable Long id) {
-        List<Vizita> list = vizitaRepo.findByPacientiPacientiIdOrderByDataDesc(id);
-        return ResponseEntity.ok(list);
-    }
-
-    @GetMapping("/vizita/fundit/pacienti/{id}")
-    public ResponseEntity<Vizita> getLastByPacient(@PathVariable Long id) {
-        return vizitaRepo.findFirstByPacientiPacientiIdOrderByDataDesc(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/vizitat")
-    public ResponseEntity<?> createVizita(@RequestBody CreateVizitaRequest req) {
-        Pacient p = pacientRepo.findById(req.getPacientiId()).orElse(null);
-        Doktori d = doktoriRepo.findById(req.getDoktoriId()).orElse(null);
-
-        if (p == null || d == null) {
-            return ResponseEntity.badRequest().body("Pacienti ose Doktori nuk u gjet");
+    @PostMapping
+    public ResponseEntity<VizitaListDTO> create(@RequestBody CreateVizitaRequest req) {
+        if (req.getPacientiId() == null || req.getDoktoriId() == null || req.getData() == null) {
+            return ResponseEntity.badRequest().build();
         }
-
+        Pacient pacient = pacientRepo.findById(req.getPacientiId()).orElse(null);
+        Doktori doktori = doktoriRepo.findById(req.getDoktoriId()).orElse(null);
+        if (pacient == null || doktori == null) {
+            return ResponseEntity.badRequest().build();
+        }
         Vizita v = new Vizita();
-        v.setPacienti(p);
-        v.setDoktori(d);
+        v.setPacienti(pacient);
+        v.setDoktori(doktori);
+        v.setData(req.getData());
         v.setPershkrimi(req.getPershkrimi());
-        v.setData(req.getData() != null ? req.getData() : LocalDate.now());
-
-        Vizita saved = vizitaRepo.save(v);
-        return ResponseEntity.ok(saved);
+        v = vizitaRepo.save(v);
+        VizitaListDTO dto = new VizitaListDTO(
+                v.getVizitatID(),
+                v.getData(),
+                v.getPershkrimi(),
+                v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
+        );
+        return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/doktori")
-    public ResponseEntity<List<Doktori>> listDoctors() {
-        return ResponseEntity.ok(doktoriRepo.findAll());
+    @GetMapping("/pacienti/{id}")
+    public List<VizitaListDTO> listByPacient(@PathVariable Long id) {
+        return vizitaRepo.findByPacienti_PacientiIdOrderByDataDesc(id)
+                .stream()
+                .map(v -> new VizitaListDTO(
+                        v.getVizitatID(),
+                        v.getData(),
+                        v.getPershkrimi(),
+                        v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
+                ))
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/vizitat/pacienti/{id}/last")
-    public ResponseEntity<Vizita> getLatestStable(@PathVariable Long id) {
-        return vizitaRepo.findLatestByPacienti(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/fundit/pacienti/{id}")
+    public ResponseEntity<VizitaListDTO> lastByPacient(@PathVariable Long id) {
+        Vizita v = vizitaRepo.findFirstByPacienti_PacientiIdOrderByDataDesc(id);
+        if (v == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(new VizitaListDTO(
+                v.getVizitatID(),
+                v.getData(),
+                v.getPershkrimi(),
+                v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
+        ));
     }
 
-    public static class CreateVizitaRequest {
-        private Long pacientiId;
-        private Long doktoriId;
-        private LocalDate data;
-        private String pershkrimi;
-
-        public Long getPacientiId() { return pacientiId; }
-        public void setPacientiId(Long pacientiId) { this.pacientiId = pacientiId; }
-
-        public Long getDoktoriId() { return doktoriId; }
-        public void setDoktoriId(Long doktoriId) { this.doktoriId = doktoriId; }
-
-        public LocalDate getData() { return data; }
-        public void setData(LocalDate data) { this.data = data; }
-
-        public String getPershkrimi() { return pershkrimi; }
-        public void setPershkrimi(String pershkrimi) { this.pershkrimi = pershkrimi; }
+    @GetMapping("/{vizitaId}")
+    public ResponseEntity<VizitaListDTO> getOne(@PathVariable Long vizitaId) {
+        return vizitaRepo.findById(vizitaId)
+                .map(v -> ResponseEntity.ok(new VizitaListDTO(
+                        v.getVizitatID(),
+                        v.getData(),
+                        v.getPershkrimi(),
+                        v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
+                )))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

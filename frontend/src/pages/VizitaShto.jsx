@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PageTitle from '../components/Typography/PageTitle';
 import { TableContainer } from '@windmill/react-ui';
 import { useLocation, useHistory } from 'react-router-dom';
-import { fetchWithAuth, getAuthHeaders } from '../services/auth';
+import { fetchWithAuth } from '../services/auth';
 
 function VizitaShto() {
   const location = useLocation();
@@ -22,20 +22,24 @@ function VizitaShto() {
     const fetchDoctors = async () => {
       setError(null);
       try {
-        const headers = getAuthHeaders();
-        const res = await fetch('http://localhost:8080/api/doktori', { headers });
+        const res = await fetchWithAuth('http://localhost:8080/api/doktori', { method: 'GET' });
+        if (res.status === 401) {
+          setError('Sesioni ka skaduar. Kyçu përsëri.');
+          setDoctors([]);
+          return;
+        }
         if (!res.ok) {
           const txt = await res.text().catch(() => '');
           throw new Error(`Ngarkimi i doktorëve dështoi (${res.status}) ${txt}`);
         }
         const data = await res.json();
-        setDoctors(Array.isArray(data) ? data : []);
-        if (Array.isArray(data) && data.length === 1) {
-          const only = data[0];
+        const list = Array.isArray(data) ? data : [];
+        setDoctors(list);
+        if (list.length === 1) {
+          const only = list[0];
           setDoktorId(only.doktoriId || only.doktoriID || only.id || only.DoktoriID || '');
         }
       } catch (e) {
-        console.error(e);
         setDoctors([]);
         setError(e.message);
       }
@@ -78,32 +82,34 @@ function VizitaShto() {
     };
 
     try {
-      const headers = { ...getAuthHeaders() };
-      const res = await fetch('http://localhost:8080/api/vizitat', {
+      const res = await fetchWithAuth('http://localhost:8080/api/vizita', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
+      if (res.status === 401) {
+        throw new Error('Sesioni ka skaduar. Kyçu përsëri.');
+      }
       if (!res.ok) {
-        const msg = await res.text();
+        const msg = await res.text().catch(()=> '');
         throw new Error(msg || 'Failed to save vizita');
       }
 
-      const rLast = await fetch(`http://localhost:8080/api/vizita-fundit/pacienti/${pacientiId}`, {
-        method: 'GET',
-        headers: getAuthHeaders()
+      // Fetch last visit from updated endpoint
+      const rLast = await fetchWithAuth(`http://localhost:8080/api/vizita/fundit/pacienti/${pacientiId}`, {
+        method: 'GET'
       });
       let last = null;
       if (rLast.ok) {
         const v = await rLast.json();
         last = {
-          VizitatID: v.vizitatID || v.VizitatID,
+          VizitatID: v.id || v.vizitatID || v.VizitatID,
           Data: v.data || v.Data,
           Pershkrimi: v.pershkrimi || v.Pershkrimi,
-          DoktorEmriMbiemri: v.doktorEmriMbiemri || v.DoktorEmriMbiemri
+          DoktorEmriMbiemri: v.doktori || v.doktorEmriMbiemri || v.DoktorEmriMbiemri
         };
       }
+
 
       const normalize = (v) => {
         if (!v) return null;
