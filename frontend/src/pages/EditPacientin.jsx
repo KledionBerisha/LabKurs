@@ -151,27 +151,37 @@ function EditPacientin() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
+
     if (type === 'radio') {
-      const bool = value === 'true' || value === true;
-      setFormData((prev) => ({ ...prev, [name]: bool }));
-      setShowTextBox((prev) => ({ ...prev, [name]: bool }));
-      
-      // If switching from Yes to No, delete the record and clear the detail field
-      if (!bool) {
-        if (name === 'alergji' || name === 'nderhyrje' || name === 'semundjeKronike') {
-          const detailField = `${name}Detaje`;
-          setFormData((prev) => ({ ...prev, [detailField]: '' }));
-          
-          // Delete the record from the backend
-          if (patient && patient.pacientiID) {
-            deleteDetailRecord(name, patient.pacientiID);
-          }
+      const booleanRadioFields = ['alergji', 'nderhyrje', 'semundjeKronike', 'sigurimShendetsor'];
+      if (booleanRadioFields.includes(name)) {
+        const bool = value === 'true';
+        setFormData(prev => ({ ...prev, [name]: bool }));
+
+        // Only these need text areas shown/hidden
+        if (['alergji', 'nderhyrje', 'semundjeKronike'].includes(name)) {
+          setShowTextBox(prev => ({ ...prev, [name]: bool }));
+
+          // If switching to No, clear and delete backend record
+            if (!bool) {
+              const detailField = `${name}Detaje`;
+              setFormData(prev => ({ ...prev, [detailField]: '' }));
+              const pid = patient?.pacientiID || patient?.pacientiId || patient?.id;
+              if (pid) {
+                deleteDetailRecord(name, pid);
+              }
+            }
         }
+      } else {
+        // String radio (e.g., gjinia)
+        setFormData(prev => ({ ...prev, [name]: value }));
       }
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
     }
-  }; 
+
+    // Non-radio fields
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const updateDetail = async (urlBase, value, existingArray, idField) => {
     const headers = getAuthHeaders();
