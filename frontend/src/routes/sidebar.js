@@ -35,12 +35,12 @@ const routes = [
     path: '/app/VizitaFundit',
     icon: 'HomeIcon',
     name: 'VizitaFundit',
-  },
-  {
-    path: '/app/FabrikaAndPunetori',
-    icon: 'HomeIcon',
-    name: 'FabrikaAndPunetori',
   }
+  // {
+  //   path: '/app/FabrikaAndPunetori',
+  //   icon: 'HomeIcon',
+  //   name: 'FabrikaAndPunetori',
+  // }
   // ,
   // {
   //   path: '/app/PlanetsAndSatellites232470151',

@@ -246,3 +246,31 @@ CREATE TABLE IF NOT EXISTS Player (
     CONSTRAINT fk_Team FOREIGN KEY (TeamID) references Team(TeamID)
 );
 alter table Player add column Number bigint
+
+-- extra / mbrojtje
+
+CREATE table if not exists Fabrika (
+	FabrikaID BIGINT auto_increment primary key,
+    EmriFabrikes VARCHAR(255),
+    Lokacioni VARCHAR(255)
+);
+CREATE table if not exists Punetori (
+	PunetoriID BIGINT auto_increment primary key,
+    Emri VARCHAR(255),
+    Mbiemri varchar(255),
+    Pozita Varchar(255),
+	ID_Fabrika bigint,
+    CONSTRAINT fk_Fabrika FOREIGN KEY (ID_Fabrika) references Fabrika(FabrikaID)
+);CREATE table if not exists Fabrika (
+	FabrikaID BIGINT auto_increment primary key,
+    EmriFabrikes VARCHAR(255),
+    Lokacioni VARCHAR(255)
+);
+CREATE table if not exists Punetori (
+	PunetoriID BIGINT auto_increment primary key,
+    Emri VARCHAR(255),
+    Mbiemri varchar(255),
+    Pozita Varchar(255),
+	ID_Fabrika bigint,
+    CONSTRAINT fk_Fabrika FOREIGN KEY (ID_Fabrika) references Fabrika(FabrikaID)
+);
