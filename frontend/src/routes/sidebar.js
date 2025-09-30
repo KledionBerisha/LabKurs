@@ -35,22 +35,23 @@ const routes = [
     path: '/app/VizitaFundit',
     icon: 'HomeIcon',
     name: 'VizitaFundit',
-  },
-  {
-    path: '/app/PlanetsAndSatellites232470151',
-    icon: 'HomeIcon',
-    name: 'PlanetsAndSatellites232470151',
-  },
-  {
-    path: '/app/LigjeruesDheLigjerata',
-    icon: 'HomeIcon',
-    name: 'LigjeruesDheLigjerata',
-  },
-  {
-    path: '/app/TeamAndPlayer',
-    icon: 'HomeIcon',
-    name: 'TeamAndPlayer',
   }
+  // ,
+  // {
+  //   path: '/app/PlanetsAndSatellites232470151',
+  //   icon: 'HomeIcon',
+  //   name: 'PlanetsAndSatellites232470151',
+  // },
+  // {
+  //   path: '/app/LigjeruesDheLigjerata',
+  //   icon: 'HomeIcon',
+  //   name: 'LigjeruesDheLigjerata',
+  // },
+  // {
+  //   path: '/app/TeamAndPlayer',
+  //   icon: 'HomeIcon',
+  //   name: 'TeamAndPlayer',
+  // }
 ]
 
 export default routes
