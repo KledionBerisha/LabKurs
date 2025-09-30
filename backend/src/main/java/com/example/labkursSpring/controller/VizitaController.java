@@ -10,6 +10,7 @@ import com.example.labkursSpring.repository.PacientRepo;
 import com.example.labkursSpring.repository.DoktoriRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,5 +90,16 @@ public class VizitaController {
                         v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
                 )))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{vizitaId}")
+    @Transactional
+    public ResponseEntity<Void> delete(@PathVariable Long vizitaId) {
+        var opt = vizitaRepo.findById(vizitaId);
+        if (opt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        vizitaRepo.delete(opt.get());
+        return ResponseEntity.noContent().build();
     }
 }

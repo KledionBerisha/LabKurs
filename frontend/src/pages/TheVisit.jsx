@@ -7,13 +7,14 @@ import { TableContainer } from '@windmill/react-ui';
 function TheVisit() {
   const location = useLocation();
   const history = useHistory();
-  // If you decide to use a URL like /app/TheVisit/:id you can read it:
-  const params = useParams(); // optional if you configure path with :id
+  const params = useParams();
   const passedVisit = location.state && location.state.visit;
   const patient = location.state && location.state.patient;
   const [visit, setVisit] = useState(passedVisit || null);
   const [loading, setLoading] = useState(!passedVisit);
   const [error, setError] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     if (visit) return;
@@ -56,6 +57,30 @@ function TheVisit() {
     return d;
   };
 
+  const handleDelete = async () => {
+    if (!visit || !visit.id) return;
+    if (!window.confirm('Fshije këtë vizitë?')) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetchWithAuth(`http://localhost:8080/api/vizita/${visit.id}`, { method: 'DELETE' });
+      if (res.status === 401) {
+        setDeleteError('Sesioni ka skaduar.');
+      } else if (res.status === 204) {
+        history.push('/app/Vizitat', { patient });
+      } else if (res.status === 404) {
+        setDeleteError('Vizita nuk u gjet.');
+      } else {
+        const t = await res.text().catch(()=> '');
+        setDeleteError('Fshirja dështoi. ' + t);
+      }
+    } catch {
+      setDeleteError('Gabim rrjeti.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <>
       <PageTitle>Vizita e zgjedhur {patient ? `- ${patient.emriMbiemri || ''}` : ''}</PageTitle>
@@ -64,6 +89,11 @@ function TheVisit() {
           {error && (
             <div className="mb-4 p-3 text-white font-medium bg-red-600 rounded">
               {error}
+            </div>
+          )}
+          {deleteError && (
+            <div className="mb-4 p-3 text-white font-medium bg-red-700 rounded">
+              {deleteError}
             </div>
           )}
           {loading && <p>Po ngarkohet...</p>}
@@ -101,6 +131,13 @@ function TheVisit() {
         </div>
       </TableContainer>
       <div className="flex mt-4 space-x-3">
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-60 text-white rounded-md"
+        >
+          {deleting ? 'Duke fshirë...' : 'Fshij vizitën'}
+        </button>
         <button
           onClick={() => history.goBack()}
           className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
