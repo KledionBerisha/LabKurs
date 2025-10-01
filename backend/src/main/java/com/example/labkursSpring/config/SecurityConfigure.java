@@ -40,6 +40,7 @@ public class SecurityConfigure {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/doktori/**").authenticated()
+                .requestMatchers("/api/vendbanimi/**").authenticated()
                 .requestMatchers("/api/vizita/pacienti/**").authenticated()
                 .anyRequest().authenticated()
             )
