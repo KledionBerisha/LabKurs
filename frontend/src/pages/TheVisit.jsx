@@ -139,6 +139,13 @@ function TheVisit() {
           {deleting ? 'Duke fshirë...' : 'Fshij vizitën'}
         </button>
         <button
+          onClick={() => history.push('/app/EditVizita', { visit, patient })}
+          disabled={!visit}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white rounded-md"
+        >
+          EditVizita
+        </button>
+        <button
           onClick={() => history.goBack()}
           className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-md"
         >

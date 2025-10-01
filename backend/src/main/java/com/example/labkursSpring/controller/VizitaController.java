@@ -102,4 +102,37 @@ public class VizitaController {
         vizitaRepo.delete(opt.get());
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{vizitaId}")
+public ResponseEntity<VizitaListDTO> update(@PathVariable Long vizitaId,
+                                            @RequestBody CreateVizitaRequest req) {
+    var opt = vizitaRepo.findById(vizitaId);
+    if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+    if (req.getDoktoriId() == null || req.getData() == null) {
+        return ResponseEntity.badRequest().build();
+    }
+
+    var v = opt.get();
+    if (req.getPacientiId() != null && v.getPacienti() != null
+            && !v.getPacienti().getPacientiId().equals(req.getPacientiId())) {
+        return ResponseEntity.badRequest().build();
+    }
+
+    var dokOpt = doktoriRepo.findById(req.getDoktoriId());
+    if (dokOpt.isEmpty()) return ResponseEntity.badRequest().build();
+
+    v.setDoktori(dokOpt.get());
+    v.setPershkrimi(req.getPershkrimi());
+    v.setData(req.getData());
+    v = vizitaRepo.save(v);
+
+    var dto = new VizitaListDTO(
+            v.getVizitatID(),
+            v.getData(),
+            v.getPershkrimi(),
+            v.getDoktori() != null ? v.getDoktori().getEmriMbiemri() : null
+    );
+    return ResponseEntity.ok(dto);
+}
 }
